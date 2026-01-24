@@ -13,7 +13,7 @@
 	const printer_height_cm = 10;
 </script>
 
-<div class="h-screen w-screen bg-gray-600 p-10">
+<div class="bg-gray-600 p-10">
 	<Document
 		width={album_width_cm * resolution_pxcm}
 		height={album_height_cm * resolution_pxcm}

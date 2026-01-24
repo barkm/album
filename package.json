@@ -38,6 +38,7 @@
 	},
 	"dependencies": {
 		"konva": "^10.2.0",
+		"maxrects-packer": "^2.7.3",
 		"svelte-konva": "^1.0.1"
 	}
 }

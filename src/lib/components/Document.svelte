@@ -232,7 +232,7 @@
 	}
 </script>
 
-<div bind:this={view_port} class="flex h-full w-full items-center justify-center">
+<div bind:this={view_port} class="flex min-h-screen w-full items-center justify-center">
 	<div
 		bind:this={document}
 		class="overflow-hidden rounded-sm bg-white shadow-lg"
