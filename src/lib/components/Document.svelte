@@ -4,10 +4,14 @@
 	import { Group, Layer, Stage, Image as KonvaImage, Transformer } from 'svelte-konva';
 
 	interface Props {
-		aspect_ratio?: number;
+		width?: number;
+		height?: number;
+		images?: { url: string; width: number; height: number }[];
 	}
 
-	const { aspect_ratio = 16 / 9 }: Props = $props();
+	let { width = 2 * 1920, height = 2 * 1080, images = $bindable([]) }: Props = $props();
+
+	const aspect_ratio = $derived(width / height);
 
 	// ----------------- Layout -----------------
 
@@ -16,8 +20,7 @@
 	let document_width: number = $state(0);
 	let document_height: number = $state(0);
 
-	let konva_width = $derived(3000 * aspect_ratio);
-	let konva_height = $derived(3000);
+	let konva_width = $derived(width);
 	let konva_scale = $derived(document_width / konva_width);
 
 	function layout() {
@@ -39,13 +42,27 @@
 
 	let ro: ResizeObserver | null = null;
 
-	onMount(() => {
+	onMount(async () => {
 		layout();
 		ro = new ResizeObserver(layout);
 		if (view_port) {
 			ro.observe(view_port);
 		}
 		window.addEventListener('keydown', handleKeyDown);
+		dropped_images = await Promise.all(
+			images.map(async (it) => {
+				const { w, h } = fitToMaxWidth(it.width, it.height);
+				return {
+					id: crypto.randomUUID(),
+					url: '', // No URL for preloaded images
+					x: 0,
+					y: 0,
+					img: await loadHtmlImage(it.url),
+					w,
+					h
+				};
+			})
+		);
 	});
 
 	onDestroy(() => {
@@ -64,7 +81,11 @@
 		h: number;
 	};
 
-	let images: DroppedImage[] = $state([]);
+	let dropped_images: DroppedImage[] = $state([]);
+
+	$effect(() => {
+		images = dropped_images.map(({ url, w, h }) => ({ url, width: w, height: h }));
+	});
 
 	const onDragOver = (e: DragEvent) => {
 		e.preventDefault();
@@ -101,8 +122,8 @@
 				const x = dropX - w / 2;
 				const y = dropY - h / 2;
 
-				images = [
-					...images,
+				dropped_images = [
+					...dropped_images,
 					{
 						id: crypto.randomUUID(),
 						url,
@@ -175,17 +196,17 @@
 		node.scaleX(1);
 		node.scaleY(1);
 
-		const index = images.findIndex((img) => img.id === selected_id);
+		const index = dropped_images.findIndex((img) => img.id === selected_id);
 		if (index !== -1) {
-			images[index] = {
-				...images[index],
+			dropped_images[index] = {
+				...dropped_images[index],
 				x: node.x(),
 				y: node.y(),
 				w: Math.max(5, node.width() * scaleX),
 				h: Math.max(5, node.height() * scaleY)
 			};
 			// Trigger reactivity
-			images = [...images];
+			dropped_images = [...dropped_images];
 		}
 	}
 
@@ -198,7 +219,7 @@
 				e.preventDefault();
 
 				// Remove the item from the list
-				images = images.filter((img) => img.id !== selected_id);
+				dropped_images = dropped_images.filter((img) => img.id !== selected_id);
 
 				// Clear the selection state
 				selected_id = null;
@@ -211,38 +232,36 @@
 	}
 </script>
 
-<div class="h-screen w-screen bg-gray-600 p-10">
-	<div bind:this={view_port} class="flex h-full w-full items-center justify-center">
-		<div
-			bind:this={document}
-			class="overflow-hidden rounded-sm bg-white shadow-lg"
-			style={`width:${document_width}px; height:${document_height}px;`}
-			ondragover={onDragOver}
-			ondrop={onDrop}
-			role="region"
-		>
-			{#if document_width && document_height}
-				<Stage width={document_width} height={document_height} onmousedown={handleDeselect}>
-					<Layer>
-						<Group scaleX={konva_scale} scaleY={konva_scale}>
-							{#each images as it (it.id)}
-								<KonvaImage
-									image={it.img}
-									x={it.x}
-									y={it.y}
-									width={it.w}
-									height={it.h}
-									draggable={true}
-									onmousedown={(e) => handleSelect(e, it)}
-									ontransformend={handleTransformEnd}
-								/>
-							{/each}
+<div bind:this={view_port} class="flex h-full w-full items-center justify-center">
+	<div
+		bind:this={document}
+		class="overflow-hidden rounded-sm bg-white shadow-lg"
+		style={`width:${document_width}px; height:${document_height}px;`}
+		ondragover={onDragOver}
+		ondrop={onDrop}
+		role="region"
+	>
+		{#if document_width && document_height}
+			<Stage width={document_width} height={document_height} onmousedown={handleDeselect}>
+				<Layer>
+					<Group scaleX={konva_scale} scaleY={konva_scale}>
+						{#each dropped_images as it (it.id)}
+							<KonvaImage
+								image={it.img}
+								x={it.x}
+								y={it.y}
+								width={it.w}
+								height={it.h}
+								draggable={true}
+								onmousedown={(e) => handleSelect(e, it)}
+								ontransformend={handleTransformEnd}
+							/>
+						{/each}
 
-							<Transformer bind:this={transformer} />
-						</Group>
-					</Layer>
-				</Stage>
-			{/if}
-		</div>
+						<Transformer bind:this={transformer} />
+					</Group>
+				</Layer>
+			</Stage>
+		{/if}
 	</div>
 </div>
