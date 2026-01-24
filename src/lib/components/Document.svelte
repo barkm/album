@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import type { KonvaEventObject } from 'konva/lib/Node';
+	import { onDestroy, onMount } from 'svelte';
 	import { Group, Layer, Stage, Image as KonvaImage, Transformer } from 'svelte-konva';
 
 	interface Props {
@@ -44,6 +45,11 @@
 		if (view_port) {
 			ro.observe(view_port);
 		}
+		window.addEventListener('keydown', handleKeyDown);
+	});
+
+	onDestroy(() => {
+		window.removeEventListener('keydown', handleKeyDown);
 	});
 
 	// ----------------- Drag and drop images -----------------
@@ -128,6 +134,81 @@
 			img.src = url;
 		});
 	}
+
+	// ----------------- Selection & Transformer ------------------
+
+	let transformer: Transformer | null = $state(null);
+	let selected_id: string | null = null;
+
+	// 3. Type the Mouse Event
+	function handleSelect(e: KonvaEventObject<MouseEvent>, item: DroppedImage) {
+		e.cancelBubble = true;
+		selected_id = item.id;
+
+		if (transformer) {
+			transformer.node.nodes([e.target]);
+			transformer.node.getLayer()?.batchDraw();
+		}
+	}
+
+	function handleDeselect(e: KonvaEventObject<MouseEvent>) {
+		// Check if the click target is the Stage itself
+		// We cast to Konva.Stage because we know what getStage() returns
+		const clickedOnEmpty = e.target === e.target.getStage();
+
+		if (clickedOnEmpty && transformer) {
+			selected_id = null;
+			transformer.node.nodes([]);
+			transformer.node.getLayer()?.batchDraw();
+		}
+	}
+
+	// 4. Type the Transform Event
+	function handleTransformEnd(e: KonvaEventObject<Event>) {
+		// Cast target to Konva.Node (or Konva.Image) to access width()/scaleX()
+		const node = e.target;
+
+		const scaleX = node.scaleX();
+		const scaleY = node.scaleY();
+
+		// Reset scale to 1 so we can drive size by width/height only
+		node.scaleX(1);
+		node.scaleY(1);
+
+		const index = images.findIndex((img) => img.id === selected_id);
+		if (index !== -1) {
+			images[index] = {
+				...images[index],
+				x: node.x(),
+				y: node.y(),
+				w: Math.max(5, node.width() * scaleX),
+				h: Math.max(5, node.height() * scaleY)
+			};
+			// Trigger reactivity
+			images = [...images];
+		}
+	}
+
+	// ----------------- Deletion ------------------
+
+	function handleKeyDown(e: KeyboardEvent) {
+		if (e.key === 'Backspace' || e.key === 'Delete') {
+			if (selected_id) {
+				// Prevent the browser from navigating back (default Backspace behavior)
+				e.preventDefault();
+
+				// Remove the item from the list
+				images = images.filter((img) => img.id !== selected_id);
+
+				// Clear the selection state
+				selected_id = null;
+				if (transformer) {
+					transformer.node.nodes([]);
+					transformer.node.getLayer()?.batchDraw();
+				}
+			}
+		}
+	}
 </script>
 
 <div class="h-screen w-screen bg-gray-600 p-10">
@@ -141,7 +222,7 @@
 			role="region"
 		>
 			{#if document_width && document_height}
-				<Stage width={document_width} height={document_height}>
+				<Stage width={document_width} height={document_height} onmousedown={handleDeselect}>
 					<Layer>
 						<Group scaleX={konva_scale} scaleY={konva_scale}>
 							{#each images as it (it.id)}
@@ -152,8 +233,12 @@
 									width={it.w}
 									height={it.h}
 									draggable={true}
+									onmousedown={(e) => handleSelect(e, it)}
+									ontransformend={handleTransformEnd}
 								/>
 							{/each}
+
+							<Transformer bind:this={transformer} />
 						</Group>
 					</Layer>
 				</Stage>
