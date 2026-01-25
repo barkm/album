@@ -59,4 +59,17 @@ describe('packing test', () => {
 		const packed = pack(rectangles, 10, 10);
 		expect(packed).toEqual([[{ width: 10, height: 10, x: 0, y: 0 }]]);
 	});
+
+	it('rectagles exactly fit the dimensions', () => {
+		const rectangles = [
+			{ width: 5, height: 10 },
+			{ width: 5, height: 10 }
+		];
+		const packed = pack(rectangles, 10, 10);
+		console.log(packed);
+		expect(packed.length).toBe(1);
+		expect(packed[0].length).toBe(2);
+		expect(packed[0]).toContainEqual({ width: 5, height: 10, x: 0, y: 0 });
+		expect(packed[0]).toContainEqual({ width: 5, height: 10, x: 5, y: 0 });
+	});
 });

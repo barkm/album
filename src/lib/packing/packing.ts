@@ -22,5 +22,16 @@ export const pack = (
 	if (rectangles.some((rect) => rect.width <= 0 || rect.height <= 0)) {
 		throw new Error('Rectangles must have positive width and height.');
 	}
-	return [rectangles.map((rect) => ({ ...rect, x: 0, y: 0 }))];
+	let packed_rectangles: PackedRectangle[] = [];
+	let current_x = 0;
+	for (let i = 0; i < rectangles.length; i++) {
+		const rect = rectangles[i];
+		packed_rectangles.push({
+			...rect,
+			x: current_x,
+			y: 0
+		});
+		current_x += rect.width;
+	}
+	return [packed_rectangles];
 };
