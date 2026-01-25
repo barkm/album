@@ -19,5 +19,8 @@ export const pack = (
 	if (rectangles.some((rect) => rect.width > width || rect.height > height)) {
 		throw new Error('One or more rectangles do not fit within the given dimensions.');
 	}
+	if (rectangles.some((rect) => rect.width <= 0 || rect.height <= 0)) {
+		throw new Error('Rectangles must have positive width and height.');
+	}
 	return [rectangles.map((rect) => ({ ...rect, x: 0, y: 0 }))];
 };

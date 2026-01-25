@@ -38,6 +38,22 @@ describe('packing test', () => {
 		expect(() => pack(rectangles, 10, 10)).toThrow();
 	});
 
+	it('rectangle with zero width or height', () => {
+		const rectangles = [
+			{ width: 0, height: 5 },
+			{ width: 3, height: 0 }
+		];
+		expect(() => pack(rectangles, 10, 10)).toThrow();
+	});
+
+	it('rectangle with negative width or height', () => {
+		const rectangles = [
+			{ width: -5, height: 5 },
+			{ width: 3, height: -3 }
+		];
+		expect(() => pack(rectangles, 10, 10)).toThrow();
+	});
+
 	it('rectangle exactly fits the dimensions', () => {
 		const rectangles = [{ width: 10, height: 10 }];
 		const packed = pack(rectangles, 10, 10);
