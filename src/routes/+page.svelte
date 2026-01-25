@@ -8,6 +8,7 @@
 	let resolution_pxcm = $state(200);
 	let album_size_cm = $state({ width: 24.5, height: 23 });
 	let paper_size_cm = $state({ width: 15, height: 10 });
+	let page_layout: 'spread' | 'single' = $state('spread');
 
 	let view = $state<'layout' | 'print' | 'settings'>('layout');
 </script>
@@ -43,6 +44,7 @@
 			width={album_size_cm.width * resolution_pxcm}
 			height={album_size_cm.height * resolution_pxcm}
 			bind:images
+			{page_layout}
 		/>
 	</div>
 	<div class={`${view === 'print' ? 'block' : 'hidden'} w-full`}>
@@ -53,6 +55,11 @@
 		/>
 	</div>
 	<div class={`${view === 'settings' ? 'block' : 'hidden'} w-full`}>
-		<Settings bind:resolution_px_per_cm={resolution_pxcm} bind:album_size_cm bind:paper_size_cm />
+		<Settings
+			bind:resolution_px_per_cm={resolution_pxcm}
+			bind:album_size_cm
+			bind:paper_size_cm
+			bind:page_layout
+		/>
 	</div>
 </div>

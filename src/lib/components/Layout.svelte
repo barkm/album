@@ -5,9 +5,10 @@
 		width: number;
 		height: number;
 		images: { url: string; width: number; height: number }[];
+		page_layout: 'spread' | 'single';
 	}
 
-	let { width, height, images = $bindable([]) }: Props = $props();
+	let { width, height, images = $bindable([]), page_layout: view }: Props = $props();
 
 	let pages_images = $state([[], []]);
 
@@ -17,7 +18,11 @@
 </script>
 
 <div class="flex flex-col justify-center gap-4">
-	<div class="grid w-full grid-cols-2 justify-items-center gap-4">
+	<div
+		class="grid w-full justify-items-center gap-4"
+		class:grid-cols-1={view === 'single'}
+		class:grid-cols-2={view === 'spread'}
+	>
 		{#each pages_images as _, page_index}
 			<Page {width} {height} bind:images={pages_images[page_index]} />
 		{/each}
