@@ -253,7 +253,11 @@
 	}
 </script>
 
-<div bind:this={view_port} class="flex min-h-screen w-full justify-center">
+<div
+	bind:this={view_port}
+	class="flex h-full w-full justify-center"
+	style={`aspect-ratio: ${width} / ${height};`}
+>
 	<div
 		bind:this={document}
 		class="overflow-hidden rounded-sm bg-white shadow-lg"
