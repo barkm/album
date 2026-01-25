@@ -4,7 +4,7 @@
 
 	let images: { url: string; width: number; height: number }[] = $state([]);
 
-	const resolution_pxcm = 100;
+	const resolution_pxcm = 200;
 
 	const album_width_cm = 24.5;
 	const album_height_cm = 23;
