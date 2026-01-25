@@ -5,4 +5,9 @@ describe('packing test', () => {
 	it('no rectangles', () => {
 		expect(pack([], 10, 10)).toEqual([]);
 	});
+
+	it('single rectangle fits', () => {
+		const rectangles = [{ width: 5, height: 5 }];
+		expect(pack(rectangles, 10, 10)).toEqual([rectangles]);
+	});
 });

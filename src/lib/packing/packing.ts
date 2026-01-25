@@ -4,5 +4,8 @@ export interface Rectangle {
 }
 
 export const pack = (rectangles: Rectangle[], width: number, height: number): Rectangle[][] => {
-	return [];
+	if (rectangles.length === 0) {
+		return [];
+	}
+	return [rectangles];
 };
