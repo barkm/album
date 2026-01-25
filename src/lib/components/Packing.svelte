@@ -15,7 +15,7 @@
 		height: number
 	) => {
 		try {
-			return pack(images, width, height, { border_padding: 50 });
+			return pack(images, width, height, { border_padding: 50, rectangle_padding: 10 });
 		} catch (e) {
 			return [];
 		}

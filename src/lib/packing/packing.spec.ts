@@ -136,4 +136,17 @@ describe('packing test', () => {
 			y: border_padding
 		});
 	});
+
+	it('rectangle padding applied correctly', () => {
+		const rectangles = [
+			{ width: 3, height: 3 },
+			{ width: 3, height: 3 }
+		];
+		const rectangle_padding = 2;
+		const packed = pack(rectangles, 10, 10, { rectangle_padding });
+		expect(packed.length).toBe(1);
+		expect(packed[0].length).toBe(2);
+		expect(packed[0]).toContainEqual({ width: 3, height: 3, x: 0, y: 0 });
+		expect(packed[0]).toContainEqual({ width: 3, height: 3, x: 3 + rectangle_padding, y: 0 });
+	});
 });
