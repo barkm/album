@@ -1,7 +1,14 @@
 <script lang="ts">
 	import type { KonvaEventObject } from 'konva/lib/Node';
 	import { onDestroy, onMount } from 'svelte';
-	import { Group, Layer, Stage, Image as KonvaImage, Transformer } from 'svelte-konva';
+	import {
+		Group,
+		Layer,
+		Stage,
+		Image as KonvaImage,
+		Transformer,
+		type KonvaDragTransformEvent
+	} from 'svelte-konva';
 
 	interface Props {
 		width?: number;
@@ -210,6 +217,20 @@
 		}
 	}
 
+	function handleDragEnd(e: KonvaDragTransformEvent, item: DroppedImage) {
+		const node = e.target;
+		const index = dropped_images.findIndex((img) => img.id === item.id);
+		if (index !== -1) {
+			dropped_images[index] = {
+				...dropped_images[index],
+				x: node.x(),
+				y: node.y()
+			};
+			// Trigger reactivity
+			dropped_images = [...dropped_images];
+		}
+	}
+
 	// ----------------- Deletion ------------------
 
 	function handleKeyDown(e: KeyboardEvent) {
@@ -232,7 +253,7 @@
 	}
 </script>
 
-<div bind:this={view_port} class="flex min-h-screen w-full items-center justify-center">
+<div bind:this={view_port} class="flex min-h-screen w-full justify-center">
 	<div
 		bind:this={document}
 		class="overflow-hidden rounded-sm bg-white shadow-lg"
@@ -254,6 +275,7 @@
 								height={it.h}
 								draggable={true}
 								onmousedown={(e) => handleSelect(e, it)}
+								ondragend={(e) => handleDragEnd(e, it)}
 								ontransformend={handleTransformEnd}
 							/>
 						{/each}

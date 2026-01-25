@@ -22,26 +22,25 @@
 	};
 
 	const bins = $derived(pack_catch_error(images, width, height));
-
-	$inspect(bins);
 </script>
 
-{#each bins as bin}
-	<div class="mb-8">
-		<div class="relative bg-white" style="width: 50%; aspect-ratio: {width} / {height};">
-			{#each bin as rect}
-				<img
-					src={rect.url}
-					alt=""
-					class="absolute border"
-					style="
-                        width: {(rect.width / width) * 100}%;
-                        height: {(rect.height / height) * 100}%;
-                        left: {(rect.x / width) * 100}%;
-                        top: {(rect.y / height) * 100}%;
-                    "
-				/>
-			{/each}
-		</div>
+<div class="min-h-screen w-full">
+	<div class="grid grid-cols-3 gap-4">
+		{#each bins as bin}
+			<div class="bg-white" style="aspect-ratio: {width} / {height};">
+				{#each bin as rect}
+					<img
+						src={rect.url}
+						alt=""
+						style="
+							width: {(rect.width / width) * 100}%;
+							height: {(rect.height / height) * 100}%;
+							top: {(rect.y / height) * 100}%;
+							left: {(rect.x / width) * 100}%;
+						"
+					/>
+				{/each}
+			</div>
+		{/each}
 	</div>
-{/each}
+</div>
