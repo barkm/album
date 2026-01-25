@@ -122,4 +122,18 @@ describe('packing test', () => {
 		expect(packed[0].length).toBe(1);
 		expect(packed[0]).toContainEqual({ width: 5, height: 5, x: 0, y: 0, color: 'green' });
 	});
+
+	it('border padding applied correctly', () => {
+		const rectangles = [{ width: 5, height: 5 }];
+		const border_padding = 2;
+		const packed = pack(rectangles, 10, 10, { border_padding });
+		expect(packed.length).toBe(1);
+		expect(packed[0].length).toBe(1);
+		expect(packed[0][0]).toEqual({
+			width: 5,
+			height: 5,
+			x: border_padding,
+			y: border_padding
+		});
+	});
 });

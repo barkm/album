@@ -15,9 +15,8 @@
 		height: number
 	) => {
 		try {
-			return pack(images, width, height);
+			return pack(images, width, height, { border_padding: 50 });
 		} catch (e) {
-			console.error('Error packing images:', e);
 			return [];
 		}
 	};

@@ -8,6 +8,25 @@ export type PackedRectangle<R extends Rectangle> = R & { x: number; y: number };
 export const pack = <R extends Rectangle>(
 	rectangles: R[],
 	width: number,
+	height: number,
+	options?: {
+		border_padding?: number;
+	}
+): PackedRectangle<R>[][] => {
+	const border_padding = options?.border_padding ?? 0;
+	const bins = packHelper(rectangles, width - border_padding * 2, height - border_padding * 2);
+	return bins.map((bin) =>
+		bin.map((rect) => ({
+			...rect,
+			x: rect.x + border_padding,
+			y: rect.y + border_padding
+		}))
+	);
+};
+
+const packHelper = <R extends Rectangle>(
+	rectangles: R[],
+	width: number,
 	height: number
 ): PackedRectangle<R>[][] => {
 	if (rectangles.length === 0) {
