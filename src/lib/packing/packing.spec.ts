@@ -33,4 +33,9 @@ describe('packing test', () => {
 		];
 		expect(() => pack(rectangles, 10, 10)).toThrow();
 	});
+
+	it('rectangle exactly fits the dimensions', () => {
+		const rectangles = [{ width: 10, height: 10 }];
+		expect(pack(rectangles, 10, 10)).toEqual([rectangles]);
+	});
 });
