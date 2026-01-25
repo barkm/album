@@ -7,7 +7,7 @@
 		images: { url: string; width: number; height: number }[];
 	}
 
-	const { width = 1920, height = 1080, images = [] }: Props = $props();
+	const { width, height, images }: Props = $props();
 
 	const pack_catch_error = (
 		images: { url: string; width: number; height: number }[],
