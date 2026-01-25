@@ -24,4 +24,13 @@ describe('packing test', () => {
 		];
 		expect(pack(rectangles, 10, 10)).toEqual([rectangles]);
 	});
+
+	it('one rectangle does not fit among multiple', () => {
+		const rectangles = [
+			{ width: 5, height: 5 },
+			{ width: 12, height: 3 },
+			{ width: 2, height: 2 }
+		];
+		expect(() => pack(rectangles, 10, 10)).toThrow();
+	});
 });
