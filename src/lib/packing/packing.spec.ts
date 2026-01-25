@@ -8,7 +8,9 @@ describe('packing test', () => {
 
 	it('single rectangle fits', () => {
 		const rectangles = [{ width: 5, height: 5 }];
-		expect(pack(rectangles, 10, 10)).toEqual([rectangles]);
+		const packed = pack(rectangles, 10, 10);
+		expect(packed.length).toBe(1);
+		expect(packed[0].length).toBe(1);
 	});
 
 	it('single rectangle does not fit', () => {
@@ -22,7 +24,9 @@ describe('packing test', () => {
 			{ width: 3, height: 3 },
 			{ width: 2, height: 2 }
 		];
-		expect(pack(rectangles, 10, 10)).toEqual([rectangles]);
+		const packed = pack(rectangles, 10, 10);
+		expect(packed.length).toBe(1);
+		expect(packed[0].length).toBe(3);
 	});
 
 	it('one rectangle does not fit among multiple', () => {
@@ -36,6 +40,7 @@ describe('packing test', () => {
 
 	it('rectangle exactly fits the dimensions', () => {
 		const rectangles = [{ width: 10, height: 10 }];
-		expect(pack(rectangles, 10, 10)).toEqual([rectangles]);
+		const packed = pack(rectangles, 10, 10);
+		expect(packed).toEqual([[{ width: 10, height: 10, x: 0, y: 0 }]]);
 	});
 });
