@@ -38,7 +38,7 @@
 	}
 </script>
 
-<div class="min-h-screen w-full text-white">
+<div class="text-white">
 	<div class="mb-6 space-y-4">
 		<label class="block">
 			<span class="block text-sm font-medium">Resolution (px/cm)</span>

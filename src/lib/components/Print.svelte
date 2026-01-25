@@ -69,33 +69,31 @@
 	};
 </script>
 
-<div class="min-h-screen w-full">
-	<div class="mb-4 flex justify-end">
-		<button
-			class="rounded bg-gray-700 px-4 py-2 text-sm text-white"
-			onclick={download_all_bins}
-			type="button"
-		>
-			Download
-		</button>
-	</div>
-	<div class="grid grid-cols-3 gap-4">
-		{#each bins as bin}
-			<div class="relative bg-white" style="aspect-ratio: {width} / {height};">
-				{#each bin as rect}
-					<img
-						src={rect.url}
-						alt=""
-						class="absolute"
-						style="
+<div class="mb-4 flex justify-end">
+	<button
+		class="rounded bg-gray-700 px-4 py-2 text-sm text-white"
+		onclick={download_all_bins}
+		type="button"
+	>
+		Download
+	</button>
+</div>
+<div class="grid grid-cols-3 gap-4">
+	{#each bins as bin}
+		<div class="relative bg-white" style="aspect-ratio: {width} / {height};">
+			{#each bin as rect}
+				<img
+					src={rect.url}
+					alt=""
+					class="absolute"
+					style="
 							width: {(rect.width / width) * 100}%;
 							height: {(rect.height / height) * 100}%;
 							top: {(rect.y / height) * 100}%;
 							left: {(rect.x / width) * 100}%;
 						"
-					/>
-				{/each}
-			</div>
-		{/each}
-	</div>
+				/>
+			{/each}
+		</div>
+	{/each}
 </div>

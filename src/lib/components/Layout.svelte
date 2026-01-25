@@ -16,7 +16,7 @@
 	});
 </script>
 
-<div class="flex min-h-screen w-full flex-col justify-center gap-4">
+<div class="flex flex-col justify-center gap-4">
 	{#each pages_images as _, page_index}
 		<Page {width} {height} bind:images={pages_images[page_index]} />
 	{/each}
