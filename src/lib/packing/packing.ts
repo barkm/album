@@ -32,7 +32,7 @@ export const pack = <R extends Rectangle>(
 	}));
 	width = width - border_padding * 2 + rectangle_padding;
 	height = height - border_padding * 2 + rectangle_padding;
-	const bins = packHelper(rectangles, width, height);
+	const bins = shelfPack(rectangles, width, height);
 	return bins.map((bin) =>
 		bin.map((rect) => ({
 			...rect,
@@ -44,7 +44,7 @@ export const pack = <R extends Rectangle>(
 	);
 };
 
-const packHelper = <R extends Rectangle>(
+const shelfPack = <R extends Rectangle>(
 	rectangles: R[],
 	width: number,
 	height: number
