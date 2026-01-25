@@ -14,6 +14,15 @@ export const pack = <R extends Rectangle>(
 		rectangle_padding?: number;
 	}
 ): PackedRectangle<R>[][] => {
+	if (rectangles.length === 0) {
+		return [];
+	}
+	if (rectangles.some((rect) => rect.width > width || rect.height > height)) {
+		throw new Error('One or more rectangles do not fit within the given dimensions.');
+	}
+	if (rectangles.some((rect) => rect.width <= 0 || rect.height <= 0)) {
+		throw new Error('Rectangles must have positive width and height.');
+	}
 	const border_padding = options?.border_padding ?? 0;
 	const rectangle_padding = options?.rectangle_padding ?? 0;
 	rectangles = rectangles.map((rect) => ({
@@ -40,15 +49,6 @@ const packHelper = <R extends Rectangle>(
 	width: number,
 	height: number
 ): PackedRectangle<R>[][] => {
-	if (rectangles.length === 0) {
-		return [];
-	}
-	if (rectangles.some((rect) => rect.width > width || rect.height > height)) {
-		throw new Error('One or more rectangles do not fit within the given dimensions.');
-	}
-	if (rectangles.some((rect) => rect.width <= 0 || rect.height <= 0)) {
-		throw new Error('Rectangles must have positive width and height.');
-	}
 	let packed_rectangles: PackedRectangle<R>[][] = [];
 	let current_bin: PackedRectangle<R>[] = [{ ...rectangles[0], x: 0, y: 0 }];
 	let current_x = rectangles[0].width;
