@@ -101,4 +101,12 @@ describe('packing test', () => {
 		expect(packed[0]).toContainEqual({ width: 10, height: 5, x: 0, y: 0 });
 		expect(packed[0]).toContainEqual({ width: 10, height: 5, x: 0, y: 5 });
 	});
+
+	it('preserve data on rectangles', () => {
+		const rectangles = [{ width: 5, height: 5, color: 'green' }];
+		const packed = pack(rectangles, 10, 10);
+		expect(packed.length).toBe(1);
+		expect(packed[0].length).toBe(1);
+		expect(packed[0]).toContainEqual({ width: 5, height: 5, x: 0, y: 0, color: 'green' });
+	});
 });
