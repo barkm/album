@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { pack } from '$lib/packing/packing';
+	import { pack, type PackedRectangle } from '$lib/packing/packing';
 
 	interface Props {
 		width: number;
@@ -8,8 +8,6 @@
 	}
 
 	const { width, height, images }: Props = $props();
-
-	type ImageRect = { url: string; width: number; height: number; x: number; y: number };
 
 	const image_cache = new Map<string, Promise<HTMLImageElement>>();
 
@@ -27,7 +25,10 @@
 		return cached;
 	};
 
-	const download_bin = async (bin: ImageRect[], index: number) => {
+	const download_bin = async (
+		bin: PackedRectangle<{ url: string; width: number; height: number; rotated: boolean }>[],
+		index: number
+	) => {
 		const canvas = document.createElement('canvas');
 		canvas.width = width;
 		canvas.height = height;
@@ -39,7 +40,15 @@
 
 		for (const rect of bin) {
 			const img = await load_image(rect.url);
-			ctx.drawImage(img, rect.x, rect.y, rect.width, rect.height);
+			ctx.save();
+			if (rect.rotated) {
+				ctx.translate(rect.x, rect.y);
+				ctx.rotate((90 * Math.PI) / 180);
+				ctx.drawImage(img, 0, -rect.width, rect.height, rect.width);
+			} else {
+				ctx.drawImage(img, rect.x, rect.y, rect.width, rect.height);
+			}
+			ctx.restore();
 		}
 
 		const link = document.createElement('a');
