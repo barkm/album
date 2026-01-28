@@ -149,5 +149,15 @@ describe('packing test', () => {
 		expect(packed[0]).toContainEqual({ width: 3, height: 5, x: 0, y: 0 });
 		expect(packed[0]).toContainEqual({ width: 3, height: 5, x: 3 + rectangle_padding, y: 0 });
 	});
+
+	it('3 rectangles that exactly fit, but not on the same row', () => {
+		const rectangles = [
+			{ width: 7, height: 5 },
+			{ width: 10, height: 5 },
+			{ width: 3, height: 5 }
+		];
+		const packed = pack(rectangles, 10, 10);
+		expect(packed.length).toBe(1);
+		expect(packed[0].length).toBe(3);
 	});
 });
