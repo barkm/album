@@ -11,7 +11,7 @@ const isIn = (a: Rectangle, b: Rectangle): boolean => {
 	return a.width <= b.width && a.height <= b.height;
 };
 
-export type PackedRectangle<R extends Rectangle> = R & { x: number; y: number };
+export type PackedRectangle<R extends Rectangle> = R & { x: number; y: number; rotated: boolean };
 
 export const pack = <R extends Rectangle>(
 	rectangles: R[],
@@ -95,9 +95,11 @@ const popIndex = <T>(array: T[], index: number): T => {
 	return item;
 };
 
+export type FreeRectangle<R extends Rectangle> = R & { x: number; y: number };
+
 class GuillotineBin<R extends Rectangle> implements Bin<R> {
 	private rectangles: PackedRectangle<R>[] = [];
-	private free_rectangles: PackedRectangle<Rectangle>[] = [];
+	private free_rectangles: FreeRectangle<Rectangle>[] = [];
 
 	constructor(width: number, height: number) {
 		this.free_rectangles.push({ x: 0, y: 0, width: width, height: height });
@@ -107,8 +109,8 @@ class GuillotineBin<R extends Rectangle> implements Bin<R> {
 		return this.best_free_rectangle(rect) ? area(this.best_free_rectangle(rect)!) : null;
 	}
 
-	private best_free_rectangle(rect: R): PackedRectangle<Rectangle> | null {
-		let best_free_rect: PackedRectangle<Rectangle> | null = null;
+	private best_free_rectangle(rect: R): FreeRectangle<Rectangle> | null {
+		let best_free_rect: FreeRectangle<Rectangle> | null = null;
 		let best_area_fit: number | null = null;
 		for (const free_rect of this.free_rectangles) {
 			if (isIn(rect, free_rect)) {
@@ -127,7 +129,7 @@ class GuillotineBin<R extends Rectangle> implements Bin<R> {
 		if (!free_rect) {
 			return;
 		}
-		this.rectangles.push({ ...rect, x: free_rect.x, y: free_rect.y });
+		this.rectangles.push({ ...rect, x: free_rect.x, y: free_rect.y, rotated: false });
 		this.splitFreeRectangle(free_rect, rect);
 	}
 
@@ -135,7 +137,7 @@ class GuillotineBin<R extends Rectangle> implements Bin<R> {
 		return this.rectangles;
 	}
 
-	private splitFreeRectangle(free_rect: PackedRectangle<Rectangle>, used_rect: R) {
+	private splitFreeRectangle(free_rect: FreeRectangle<Rectangle>, used_rect: R) {
 		if (!isIn(used_rect, free_rect)) {
 			throw new Error('Used rectangle does not fit within free rectangle.');
 		}
