@@ -185,4 +185,12 @@ describe('packing test', () => {
 		expect(packed[0].length).toBe(2);
 		expect(packed[0].some((r) => r.rotated)).toBe(true);
 	});
+
+	it('rectangle larger than bin in one dimension but fits when rotated', () => {
+		const rectangles = [{ width: 5, height: 10 }];
+		const packed = pack(rectangles, 10, 5);
+		expect(packed.length).toBe(1);
+		expect(packed[0].length).toBe(1);
+		expect(packed[0][0].rotated).toBe(true);
+	});
 });

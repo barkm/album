@@ -32,7 +32,10 @@ export const pack = <R extends Rectangle>(
 	if (rectangles.length === 0) {
 		return [];
 	}
-	if (rectangles.some((rect) => rect.width > width || rect.height > height)) {
+	const bounding_rect: Rectangle = { width, height };
+	if (
+		rectangles.some((rect) => !(isIn(rect, bounding_rect) || isIn(rotate(rect), bounding_rect)))
+	) {
 		throw new Error('One or more rectangles do not fit within the given dimensions.');
 	}
 	if (rectangles.some((rect) => rect.width <= 0 || rect.height <= 0)) {
@@ -97,8 +100,13 @@ const binPack = <R extends Rectangle>(rectangles: R[], bin_factory: () => Bin<R>
 			bin.add({ ...rectangle_to_add, rotated });
 		} else {
 			const new_bin = bin_factory();
-			// TODO: consider rotation here as well
-			new_bin.add({ ...popIndex(rectangles, 0), rotated: false });
+			const rectangle = popIndex(rectangles, 0);
+			const rotated_rectangle = rotate(rectangle);
+			if (new_bin.score(rectangle) === null && new_bin.score(rotated_rectangle) !== null) {
+				new_bin.add({ ...rotated_rectangle, rotated: true });
+			} else {
+				new_bin.add({ ...rectangle, rotated: false });
+			}
 			bins.push(new_bin);
 		}
 	}
