@@ -62,6 +62,8 @@
 
 	const bins = $derived(pack_catch_error(images, width, height));
 
+	$inspect(bins, 'packed bins');
+
 	const download_all_bins = async () => {
 		for (let i = 0; i < bins.length; i++) {
 			await download_bin(bins[i], i);
@@ -87,10 +89,12 @@
 					alt=""
 					class="absolute"
 					style="
-							width: {(rect.width / width) * 100}%;
-							height: {(rect.height / height) * 100}%;
+							width: {(rect.rotated ? rect.height / width : rect.width / width) * 100}%;
+							height: {(rect.rotated ? rect.width / height : rect.height / height) * 100}%;
 							top: {(rect.y / height) * 100}%;
 							left: {(rect.x / width) * 100}%;
+							transform: {rect.rotated ? 'rotate(90deg) translate(0, -100%)' : 'none'};
+							transform-origin: top left;
 						"
 				/>
 			{/each}

@@ -11,7 +11,14 @@ const isIn = (a: Rectangle, b: Rectangle): boolean => {
 	return a.width <= b.width && a.height <= b.height;
 };
 
-export type PackedRectangle<R extends Rectangle> = R & { x: number; y: number; rotated: boolean };
+const rotate = <R extends Rectangle>(rect: R): R => {
+	return { ...rect, width: rect.height, height: rect.width };
+};
+
+export type RectangleWithRotation<R extends Rectangle> = R & { rotated: boolean };
+
+export type PackedRectangle<R extends Rectangle> = R &
+	RectangleWithRotation<R> & { x: number; y: number };
 
 export const pack = <R extends Rectangle>(
 	rectangles: R[],
@@ -54,7 +61,7 @@ export const pack = <R extends Rectangle>(
 
 interface Bin<R extends Rectangle> {
 	score: (rect: R) => number | null;
-	add: (rect: R) => void;
+	add: (rect: RectangleWithRotation<R>) => void;
 	getRectangles: () => PackedRectangle<R>[];
 }
 
@@ -62,26 +69,36 @@ const binPack = <R extends Rectangle>(rectangles: R[], bin_factory: () => Bin<R>
 	let bins: Bin<R>[] = [];
 
 	while (rectangles.length > 0) {
-		let best_rectangle_bin: { score: number; rect_index: number; bin_index: number } | null = null;
+		let best_rectangle_bin: {
+			score: number;
+			rect_index: number;
+			bin_index: number;
+			rotated: boolean;
+		} | null = null;
 		for (const [rect_index, rect] of rectangles.entries()) {
-			for (const [bin_index, bin] of bins.entries()) {
-				const score = bin.score(rect);
-				if (score === null) {
-					continue;
-				}
-				if (!best_rectangle_bin || score < best_rectangle_bin.score) {
-					best_rectangle_bin = { score, rect_index, bin_index };
+			for (const rotated of [false, true]) {
+				for (const [bin_index, bin] of bins.entries()) {
+					const score = bin.score(rotated ? rotate(rect) : rect);
+					if (score === null) {
+						continue;
+					}
+					if (!best_rectangle_bin || score < best_rectangle_bin.score) {
+						best_rectangle_bin = { score, rect_index, bin_index, rotated };
+					}
 				}
 			}
 		}
 
 		if (best_rectangle_bin) {
-			const { rect_index, bin_index } = best_rectangle_bin;
+			const { rect_index, bin_index, rotated } = best_rectangle_bin;
 			const bin = bins[bin_index];
-			bin.add(popIndex(rectangles, rect_index));
+			const rectangle = popIndex(rectangles, rect_index);
+			const rectangle_to_add = rotated ? rotate(rectangle) : rectangle;
+			bin.add({ ...rectangle_to_add, rotated });
 		} else {
 			const new_bin = bin_factory();
-			new_bin.add(popIndex(rectangles, 0));
+			// TODO: consider rotation here as well
+			new_bin.add({ ...popIndex(rectangles, 0), rotated: false });
 			bins.push(new_bin);
 		}
 	}
@@ -124,12 +141,12 @@ class GuillotineBin<R extends Rectangle> implements Bin<R> {
 		return best_free_rect;
 	}
 
-	add(rect: R): void {
+	add(rect: RectangleWithRotation<R>): void {
 		const free_rect = this.best_free_rectangle(rect);
 		if (!free_rect) {
 			return;
 		}
-		this.rectangles.push({ ...rect, x: free_rect.x, y: free_rect.y, rotated: false });
+		this.rectangles.push({ ...rect, x: free_rect.x, y: free_rect.y });
 		this.splitFreeRectangle(free_rect, rect);
 	}
 

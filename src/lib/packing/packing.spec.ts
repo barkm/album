@@ -173,4 +173,16 @@ describe('packing test', () => {
 		expect(packed.length).toBe(1);
 		expect(packed[0].length).toBe(3);
 	});
+
+	it('2 rectangles that fit if one is rotated', () => {
+		const rectangles = [
+			{ width: 7, height: 10 },
+			{ width: 10, height: 3 }
+		];
+		const packed = pack(rectangles, 10, 10);
+		console.log(packed);
+		expect(packed.length).toBe(1);
+		expect(packed[0].length).toBe(2);
+		expect(packed[0].some((r) => r.rotated)).toBe(true);
+	});
 });
