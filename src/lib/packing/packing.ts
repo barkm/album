@@ -15,7 +15,7 @@ const rotate = <R extends Rectangle>(rect: R): R => {
 	return { ...rect, width: rect.height, height: rect.width };
 };
 
-export type RectangleWithRotation<R extends Rectangle> = R & { rotated: boolean };
+type RectangleWithRotation<R extends Rectangle> = R & { rotated: boolean };
 
 export type PackedRectangle<R extends Rectangle> = R &
 	RectangleWithRotation<R> & { x: number; y: number };
@@ -120,7 +120,7 @@ const popIndex = <T>(array: T[], index: number): T => {
 	return item;
 };
 
-export type FreeRectangle<R extends Rectangle> = R & { x: number; y: number };
+type FreeRectangle<R extends Rectangle> = R & { x: number; y: number };
 
 class GuillotineBin<R extends Rectangle> implements Bin<R> {
 	private rectangles: PackedRectangle<R>[] = [];
