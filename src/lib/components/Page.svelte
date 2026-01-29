@@ -14,7 +14,16 @@
 		width: number;
 		height: number;
 		max_image_side: number;
-		images: { url: string; width: number; height: number; x: number; y: number }[];
+		images: {
+			id: string;
+			blob: Blob;
+			url: string;
+			image: HTMLImageElement;
+			width: number;
+			height: number;
+			x: number;
+			y: number;
+		}[];
 	}
 
 	let { width, height, max_image_side, images = $bindable([]) }: Props = $props();
@@ -56,20 +65,6 @@
 			ro.observe(view_port);
 		}
 		window.addEventListener('keydown', handleKeyDown);
-		dropped_images = await Promise.all(
-			images.map(async (it) => {
-				const { w, h } = fit_to_max_side(it.width, it.height);
-				return {
-					id: crypto.randomUUID(),
-					url: '', // No URL for preloaded images
-					x: it.x,
-					y: it.y,
-					img: await loadHtmlImage(it.url),
-					w,
-					h
-				};
-			})
-		);
 	});
 
 	onDestroy(() => {
@@ -80,6 +75,7 @@
 
 	type DroppedImage = {
 		id: string;
+		blob: Blob;
 		url: string;
 		img: HTMLImageElement;
 		x: number;
@@ -88,10 +84,48 @@
 		h: number;
 	};
 
-	let dropped_images: DroppedImage[] = $state([]);
+	const fit_to_max_side = (naturalW: number, naturalH: number) => {
+		if (naturalW <= max_image_side && naturalH <= max_image_side) {
+			return { w: naturalW, h: naturalH };
+		}
+		if (naturalW >= naturalH) {
+			const w = max_image_side;
+			const h = naturalH * (w / naturalW);
+			return { w, h };
+		} else {
+			const h = max_image_side;
+			const w = naturalW * (h / naturalH);
+			return { w, h };
+		}
+	};
+
+	let dropped_images: DroppedImage[] = $state(
+		images.map((it) => {
+			const { w, h } = fit_to_max_side(it.width, it.height);
+			return {
+				id: it.id,
+				url: it.url,
+				x: it.x,
+				y: it.y,
+				img: it.image,
+				blob: it.blob,
+				w,
+				h
+			};
+		})
+	);
 
 	$effect(() => {
-		images = dropped_images.map(({ url, w, h, x, y }) => ({ url, width: w, height: h, x, y }));
+		images = dropped_images.map(({ id, blob, url, img, w, h, x, y }) => ({
+			id,
+			blob,
+			url,
+			image: img,
+			width: w,
+			height: h,
+			x,
+			y
+		}));
 	});
 
 	const onDragOver = (e: DragEvent) => {
@@ -133,6 +167,7 @@
 					...dropped_images,
 					{
 						id: crypto.randomUUID(),
+						blob: file,
 						url,
 						img,
 						x,
@@ -145,21 +180,6 @@
 				URL.revokeObjectURL(url);
 				console.error('Failed to load dropped image:', err);
 			}
-		}
-	};
-
-	const fit_to_max_side = (naturalW: number, naturalH: number) => {
-		if (naturalW <= max_image_side && naturalH <= max_image_side) {
-			return { w: naturalW, h: naturalH };
-		}
-		if (naturalW >= naturalH) {
-			const w = max_image_side;
-			const h = naturalH * (w / naturalW);
-			return { w, h };
-		} else {
-			const h = max_image_side;
-			const w = naturalW * (h / naturalH);
-			return { w, h };
 		}
 	};
 
