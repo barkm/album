@@ -4,25 +4,33 @@
 		album_size_cm: { width: number; height: number };
 		paper_size_cm: { width: number; height: number };
 		page_layout: 'spread' | 'single';
+		border_padding: number;
+		image_padding: number;
 	}
 
 	let {
 		resolution_px_per_cm = $bindable(200),
 		album_size_cm = $bindable({ width: 24.5, height: 23 }),
 		paper_size_cm = $bindable({ width: 15, height: 10 }),
-		page_layout = $bindable('spread')
+		page_layout = $bindable('spread'),
+		border_padding = $bindable(10),
+		image_padding = $bindable(10)
 	}: Props = $props();
 
 	let draft_resolution_px_per_cm = $state(resolution_px_per_cm);
 	let draft_album_size_cm = $state({ ...album_size_cm });
 	let draft_paper_size_cm = $state({ ...paper_size_cm });
 	let draft_page_layout = $state(page_layout);
+	let draft_border_padding = $state(border_padding);
+	let draft_image_padding = $state(image_padding);
 
 	function save_settings() {
 		resolution_px_per_cm = draft_resolution_px_per_cm;
 		album_size_cm = { ...draft_album_size_cm };
 		paper_size_cm = { ...draft_paper_size_cm };
 		page_layout = draft_page_layout;
+		border_padding = draft_border_padding;
+		image_padding = draft_image_padding;
 	}
 
 	function cancel_changes() {
@@ -30,6 +38,8 @@
 		draft_album_size_cm = { ...album_size_cm };
 		draft_paper_size_cm = { ...paper_size_cm };
 		draft_page_layout = page_layout;
+		draft_border_padding = border_padding;
+		draft_image_padding = image_padding;
 	}
 
 	function has_changes() {
@@ -39,7 +49,9 @@
 			draft_album_size_cm.height !== album_size_cm.height ||
 			draft_paper_size_cm.width !== paper_size_cm.width ||
 			draft_paper_size_cm.height !== paper_size_cm.height ||
-			draft_page_layout !== page_layout
+			draft_page_layout !== page_layout ||
+			draft_border_padding !== border_padding ||
+			draft_image_padding !== image_padding
 		);
 	}
 </script>
@@ -95,6 +107,28 @@
 					bind:value={draft_paper_size_cm.height}
 				/>
 			</div>
+		</div>
+
+		<div>
+			<span class="block text-sm font-medium">Border padding (px)</span>
+			<input
+				class="mt-1 w-40 rounded border border-white/20 bg-white/5 px-3 py-1 text-white"
+				type="number"
+				min="0"
+				step="1"
+				bind:value={draft_border_padding}
+			/>
+		</div>
+
+		<div>
+			<span class="block text-sm font-medium">Image padding (px)</span>
+			<input
+				class="mt-1 w-40 rounded border border-white/20 bg-white/5 px-3 py-1 text-white"
+				type="number"
+				min="0"
+				step="1"
+				bind:value={draft_image_padding}
+			/>
 		</div>
 
 		<label class="block">

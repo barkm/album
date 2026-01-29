@@ -4,11 +4,12 @@
 	interface Props {
 		width: number;
 		height: number;
+		border_padding: number;
+		image_padding: number;
 		images: { url: string; width: number; height: number }[];
 	}
 
-	const { width, height, images }: Props = $props();
-
+	const { width, height, border_padding, image_padding, images }: Props = $props();
 	const image_cache = new Map<string, Promise<HTMLImageElement>>();
 
 	const load_image = (url: string) => {
@@ -63,7 +64,7 @@
 		height: number
 	) => {
 		try {
-			return pack(images, width, height, { border_padding: 0, rectangle_padding: 10 });
+			return pack(images, width, height, { border_padding, rectangle_padding: image_padding });
 		} catch (e) {
 			return [];
 		}

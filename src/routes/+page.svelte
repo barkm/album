@@ -9,6 +9,8 @@
 	let album_size_cm = $state({ width: 24.5, height: 23 });
 	let paper_size_cm = $state({ width: 15, height: 10 });
 	let page_layout: 'spread' | 'single' = $state('spread');
+	let border_padding = $state(10);
+	let image_padding = $state(10);
 
 	let view = $state<'layout' | 'print' | 'settings'>('layout');
 </script>
@@ -53,6 +55,8 @@
 			width={paper_size_cm.width * resolution_pxcm}
 			height={paper_size_cm.height * resolution_pxcm}
 			{images}
+			{border_padding}
+			{image_padding}
 		/>
 	</div>
 	<div class={`${view === 'settings' ? 'block' : 'hidden'} w-full`}>
@@ -61,6 +65,8 @@
 			bind:album_size_cm
 			bind:paper_size_cm
 			bind:page_layout
+			bind:border_padding
+			bind:image_padding
 		/>
 	</div>
 </div>
