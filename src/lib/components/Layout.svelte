@@ -4,11 +4,18 @@
 	interface Props {
 		width: number;
 		height: number;
+		max_image_side: number;
 		images: { url: string; width: number; height: number }[];
 		page_layout: 'spread' | 'single';
 	}
 
-	let { width, height, images = $bindable([]), page_layout: view }: Props = $props();
+	let {
+		width,
+		height,
+		max_image_side,
+		images = $bindable([]),
+		page_layout: view
+	}: Props = $props();
 
 	let pages_images = $state([[], []]);
 
@@ -24,7 +31,7 @@
 		class:grid-cols-2={view === 'spread'}
 	>
 		{#each pages_images as _, page_index}
-			<Page {width} {height} bind:images={pages_images[page_index]} />
+			<Page {width} {height} {max_image_side} bind:images={pages_images[page_index]} />
 		{/each}
 	</div>
 	<div class="flex justify-center">

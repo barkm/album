@@ -13,11 +13,11 @@
 	interface Props {
 		width: number;
 		height: number;
+		max_image_side: number;
 		images: { url: string; width: number; height: number }[];
 	}
 
-	let { width, height, images = $bindable([]) }: Props = $props();
-
+	let { width, height, max_image_side, images = $bindable([]) }: Props = $props();
 	const aspect_ratio = $derived(width / height);
 
 	// ----------------- Layout -----------------
@@ -58,7 +58,7 @@
 		window.addEventListener('keydown', handleKeyDown);
 		dropped_images = await Promise.all(
 			images.map(async (it) => {
-				const { w, h } = fitToMaxWidth(it.width, it.height);
+				const { w, h } = fit_to_max_side(it.width, it.height);
 				return {
 					id: crypto.randomUUID(),
 					url: '', // No URL for preloaded images
@@ -123,7 +123,7 @@
 
 			try {
 				const img = await loadHtmlImage(url);
-				const { w, h } = fitToMaxWidth(img.naturalWidth, img.naturalHeight);
+				const { w, h } = fit_to_max_side(img.naturalWidth, img.naturalHeight);
 
 				// Center under cursor => compute top-left
 				const x = dropX - w / 2;
@@ -148,10 +148,19 @@
 		}
 	};
 
-	const fitToMaxWidth = (naturalW: number, naturalH: number) => {
-		const w = Math.min(konva_width, naturalW);
-		const h = naturalH * (w / naturalW);
-		return { w, h };
+	const fit_to_max_side = (naturalW: number, naturalH: number) => {
+		if (naturalW <= max_image_side && naturalH <= max_image_side) {
+			return { w: naturalW, h: naturalH };
+		}
+		if (naturalW >= naturalH) {
+			const w = max_image_side;
+			const h = naturalH * (w / naturalW);
+			return { w, h };
+		} else {
+			const h = max_image_side;
+			const w = naturalW * (h / naturalH);
+			return { w, h };
+		}
 	};
 
 	async function loadHtmlImage(url: string): Promise<HTMLImageElement> {
