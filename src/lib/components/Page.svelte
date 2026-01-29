@@ -14,7 +14,7 @@
 		width: number;
 		height: number;
 		max_image_side: number;
-		images: { url: string; width: number; height: number }[];
+		images: { url: string; width: number; height: number; x: number; y: number }[];
 	}
 
 	let { width, height, max_image_side, images = $bindable([]) }: Props = $props();
@@ -62,8 +62,8 @@
 				return {
 					id: crypto.randomUUID(),
 					url: '', // No URL for preloaded images
-					x: 0,
-					y: 0,
+					x: it.x,
+					y: it.y,
 					img: await loadHtmlImage(it.url),
 					w,
 					h
@@ -91,7 +91,7 @@
 	let dropped_images: DroppedImage[] = $state([]);
 
 	$effect(() => {
-		images = dropped_images.map(({ url, w, h }) => ({ url, width: w, height: h }));
+		images = dropped_images.map(({ url, w, h, x, y }) => ({ url, width: w, height: h, x, y }));
 	});
 
 	const onDragOver = (e: DragEvent) => {

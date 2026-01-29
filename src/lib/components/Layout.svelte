@@ -20,7 +20,7 @@
 	let pages_images = $state([[], []]);
 
 	$effect(() => {
-		images = pages_images.flat();
+		images = pages_images.flat().map(({ url, width, height }) => ({ url, width, height }));
 	});
 </script>
 
