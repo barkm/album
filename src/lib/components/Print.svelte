@@ -71,8 +71,6 @@
 
 	const bins = $derived(pack_catch_error(images, width, height));
 
-	$inspect(bins, 'packed bins');
-
 	const download_all_bins = async () => {
 		for (let i = 0; i < bins.length; i++) {
 			await download_bin(bins[i], i);
