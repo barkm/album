@@ -13,7 +13,10 @@
 	interface Props {
 		width: number;
 		height: number;
-		max_image_side: number;
+		max_image_side: {
+			long: number;
+			short: number;
+		};
 		images: {
 			id: string;
 			blob: Blob;
@@ -38,6 +41,7 @@
 
 	let konva_width = $derived(width);
 	let konva_scale = $derived(document_width / konva_width);
+	let min_side = $derived(0.05 * Math.min(width, height));
 
 	function layout() {
 		if (!view_port) return;
@@ -85,18 +89,13 @@
 	};
 
 	const fit_to_max_side = (naturalW: number, naturalH: number) => {
-		if (naturalW <= max_image_side && naturalH <= max_image_side) {
+		const long_side = Math.max(naturalW, naturalH);
+		const short_side = Math.min(naturalW, naturalH);
+		if (long_side <= max_image_side.long && short_side <= max_image_side.short) {
 			return { w: naturalW, h: naturalH };
 		}
-		if (naturalW >= naturalH) {
-			const w = max_image_side;
-			const h = naturalH * (w / naturalW);
-			return { w, h };
-		} else {
-			const h = max_image_side;
-			const w = naturalW * (h / naturalH);
-			return { w, h };
-		}
+		const scale = Math.min(max_image_side.long / long_side, max_image_side.short / short_side);
+		return { w: naturalW * scale, h: naturalH * scale };
 	};
 
 	let dropped_images: DroppedImage[] = $state(
@@ -256,7 +255,6 @@
 
 	const constrainSize = (newW: number, newH: number) => {
 		const { w, h } = fit_to_max_side(newW, newH);
-		const min_side = 0.05 * Math.min(width, height);
 		if (w < min_side || h < min_side) {
 			const scale = min_side / Math.min(w, h);
 			return { w: w * scale, h: h * scale };

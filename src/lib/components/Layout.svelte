@@ -6,7 +6,10 @@
 	interface Props {
 		width: number;
 		height: number;
-		max_image_side: number;
+		max_image_side: {
+			long: number;
+			short: number;
+		};
 		images: { url: string; width: number; height: number }[];
 		page_layout: 'spread' | 'single';
 	}
