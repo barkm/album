@@ -254,6 +254,16 @@
 		}
 	}
 
+	const constrainSize = (newW: number, newH: number) => {
+		const { w, h } = fit_to_max_side(newW, newH);
+		const min_side = 0.05 * Math.min(width, height);
+		if (w < min_side || h < min_side) {
+			const scale = min_side / Math.min(w, h);
+			return { w: w * scale, h: h * scale };
+		}
+		return { w, h };
+	};
+
 	// 4. Type the Transform Event
 	function handleTransformEnd(e: KonvaEventObject<Event>) {
 		// Cast target to Konva.Node (or Konva.Image) to access width()/scaleX()
@@ -268,12 +278,16 @@
 
 		const index = dropped_images.findIndex((img) => img.id === selected_id);
 		if (index !== -1) {
+			const scale = Math.min(scaleX, scaleY);
+			const new_width = node.width() * scale;
+			const new_height = node.height() * scale;
+			const constrained_size = constrainSize(new_width, new_height);
 			dropped_images[index] = {
 				...dropped_images[index],
 				x: node.x(),
 				y: node.y(),
-				w: Math.max(5, node.width() * scaleX),
-				h: Math.max(5, node.height() * scaleY)
+				w: constrained_size.w,
+				h: constrained_size.h
 			};
 			// Trigger reactivity
 			dropped_images = [...dropped_images];
@@ -296,10 +310,10 @@
 
 	const handleTransform = (e: KonvaEventObject<Event>) => {
 		const node = e.target;
-		let scale = Math.min(node.scaleX(), node.scaleY());
+		let scale = Math.max(Math.min(node.scaleX(), node.scaleY()), 0.01);
 		let new_width = node.width() * scale;
 		let new_height = node.height() * scale;
-		const constrained_size = fit_to_max_side(new_width, new_height);
+		const constrained_size = constrainSize(new_width, new_height);
 		node.width(constrained_size.w);
 		node.height(constrained_size.h);
 		node.scaleX(1);
