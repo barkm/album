@@ -133,14 +133,46 @@
 		if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
 	};
 
+	const getSupportedImageFiles = (all_files: File[]): File[] => {
+		const non_image_files = all_files.filter((f) => !isImageFile(f));
+		if (non_image_files.length > 0) {
+			const details = non_image_files.map((f) => `${f.name} (${f.type})`).join(', ');
+			alert(`The following files are not images and will be ignored: ${details}`);
+		}
+
+		const heic_files = all_files.filter(isHeicFile);
+		if (!isSafari() && heic_files.length > 0) {
+			const details = heic_files.map((f) => `${f.name} (${f.type.split('/')[1]})`).join(', ');
+			alert(`HEIC/HEIF images are only supported in Safari. Files: ${details}`);
+			return all_files.filter((f) => !isHeicFile(f));
+		}
+		return all_files.filter(isImageFile);
+	};
+
+	const isImageFile = (file: File): boolean => {
+		return file.type.startsWith('image/');
+	};
+
+	const isSafari = (): boolean => {
+		return (
+			typeof navigator !== 'undefined' && /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+		);
+	};
+
+	const isHeicFile = (file: File): boolean => {
+		return file.type === 'image/heic' || file.type === 'image/heif';
+	};
+
 	const onDrop = async (e: DragEvent) => {
 		e.preventDefault();
 		if (!document) return;
 
-		const files = Array.from(e.dataTransfer?.files ?? []).filter((f) =>
-			f.type.startsWith('image/')
-		);
-		if (files.length === 0) return;
+		const all_files = Array.from(e.dataTransfer?.files ?? []);
+		const files = getSupportedImageFiles(all_files);
+
+		if (files.length === 0) {
+			return;
+		}
 
 		// Browser coords -> document pixel coords
 		const r = document.getBoundingClientRect();
@@ -155,31 +187,33 @@
 		for (const file of files) {
 			const url = URL.createObjectURL(file);
 
+			let img: HTMLImageElement;
 			try {
-				const img = await loadHtmlImage(url);
-				const { w, h } = fit_to_max_side(img.naturalWidth, img.naturalHeight);
-
-				// Center under cursor => compute top-left
-				const x = dropX - w / 2;
-				const y = dropY - h / 2;
-
-				dropped_images = [
-					...dropped_images,
-					{
-						id: crypto.randomUUID(),
-						blob: file,
-						url,
-						img,
-						x,
-						y,
-						w,
-						h
-					}
-				];
+				img = await loadHtmlImage(url);
 			} catch (err) {
 				URL.revokeObjectURL(url);
-				console.error('Failed to load dropped image:', err);
+				alert(`Failed to load image file: ${file.name} of type (${file.type})`);
+				return;
 			}
+			const { w, h } = fit_to_max_side(img.naturalWidth, img.naturalHeight);
+
+			// Center under cursor => compute top-left
+			const x = dropX - w / 2;
+			const y = dropY - h / 2;
+
+			dropped_images = [
+				...dropped_images,
+				{
+					id: crypto.randomUUID(),
+					blob: file,
+					url,
+					img,
+					x,
+					y,
+					w,
+					h
+				}
+			];
 		}
 	};
 
