@@ -294,6 +294,18 @@
 		}
 	}
 
+	const handleTransform = (e: KonvaEventObject<Event>) => {
+		const node = e.target;
+		let scale = Math.min(node.scaleX(), node.scaleY());
+		let new_width = node.width() * scale;
+		let new_height = node.height() * scale;
+		const constrained_size = fit_to_max_side(new_width, new_height);
+		node.width(constrained_size.w);
+		node.height(constrained_size.h);
+		node.scaleX(1);
+		node.scaleY(1);
+	};
+
 	// ----------------- Deletion ------------------
 
 	function handleKeyDown(e: KeyboardEvent) {
@@ -344,6 +356,7 @@
 								onmousedown={(e) => handleSelect(e, it)}
 								ondragend={(e) => handleDragEnd(e, it)}
 								ontransformend={handleTransformEnd}
+								ontransform={handleTransform}
 							/>
 						{/each}
 

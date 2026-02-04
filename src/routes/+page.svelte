@@ -45,7 +45,8 @@
 		<Layout
 			width={album_size_cm.width * resolution_pxcm}
 			height={album_size_cm.height * resolution_pxcm}
-			max_image_side={0.3 * Math.max(album_size_cm.width, album_size_cm.height) * resolution_pxcm}
+			max_image_side={Math.max(paper_size_cm.width, paper_size_cm.height) * resolution_pxcm -
+				2 * border_padding}
 			bind:images
 			{page_layout}
 		/>
