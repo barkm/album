@@ -374,7 +374,7 @@
 							/>
 						{/each}
 
-						<Transformer bind:this={transformer} />
+						<Transformer bind:this={transformer} flipEnabled={false} />
 					</Group>
 				</Layer>
 			</Stage>
