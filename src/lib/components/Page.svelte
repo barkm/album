@@ -235,7 +235,6 @@
 		}
 	}
 
-
 	// ----------------- Selection & Transformer ------------------
 
 	let transformer: Transformer | null = $state(null);
@@ -354,8 +353,6 @@
 			if (img) copyImageToClipboard(img.blob);
 		}
 	}
-
-
 </script>
 
 <div

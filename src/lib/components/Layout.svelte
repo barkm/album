@@ -128,7 +128,6 @@
 	};
 
 	onMount(load_images_from_db);
-
 </script>
 
 {#if pages_images !== null}
