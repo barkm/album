@@ -69,10 +69,12 @@
 			ro.observe(view_port);
 		}
 		window.addEventListener('keydown', handleKeyDown);
+		window.addEventListener('paste', handlePaste);
 	});
 
 	onDestroy(() => {
 		window.removeEventListener('keydown', handleKeyDown);
+		window.removeEventListener('paste', handlePaste);
 	});
 
 	// ----------------- Drag and drop images -----------------
@@ -166,40 +168,55 @@
 		e.preventDefault();
 		if (!document) return;
 
-		const all_files = Array.from(e.dataTransfer?.files ?? []);
-		const files = getSupportedImageFiles(all_files);
-
-		if (files.length === 0) {
-			return;
-		}
-
-		// Browser coords -> document pixel coords
+		// Browser coords -> world coords
 		const r = document.getBoundingClientRect();
-		const px = e.clientX - r.left;
-		const py = e.clientY - r.top;
+		const dropX = (e.clientX - r.left) / konva_scale;
+		const dropY = (e.clientY - r.top) / konva_scale;
 
-		// Pixel coords -> world coords
-		const dropX = px / konva_scale;
-		const dropY = py / konva_scale;
+		await addImageFiles(Array.from(e.dataTransfer?.files ?? []), dropX, dropY);
+	};
 
-		// Load each image and place centered under cursor
+	let mouse_world: { x: number; y: number } | null = null;
+
+	const onMouseMove = (e: MouseEvent) => {
+		if (!document) return;
+		const r = document.getBoundingClientRect();
+		mouse_world = {
+			x: (e.clientX - r.left) / konva_scale,
+			y: (e.clientY - r.top) / konva_scale
+		};
+	};
+
+	const onMouseLeave = () => {
+		mouse_world = null;
+	};
+
+	async function handlePaste(e: ClipboardEvent) {
+		if (!mouse_world) return;
+
+		const files = Array.from(e.clipboardData?.items ?? [])
+			.filter((item) => item.kind === 'file')
+			.map((item) => item.getAsFile())
+			.filter((f): f is File => f !== null);
+
+		await addImageFiles(files, mouse_world.x, mouse_world.y);
+	}
+
+	async function addImageFiles(all_files: File[], centerX: number, centerY: number) {
+		const files = getSupportedImageFiles(all_files);
 		for (const file of files) {
 			const url = URL.createObjectURL(file);
 
 			let img: HTMLImageElement;
 			try {
 				img = await loadHtmlImage(url);
-			} catch (err) {
+			} catch {
 				URL.revokeObjectURL(url);
-				alert(`Failed to load image file: ${file.name} of type (${file.type})`);
+				alert(`Failed to load image file: ${file.name} (${file.type})`);
 				return;
 			}
+
 			const { w, h } = fit_to_max_side(img.naturalWidth, img.naturalHeight);
-
-			// Center under cursor => compute top-left
-			const x = dropX - w / 2;
-			const y = dropY - h / 2;
-
 			dropped_images = [
 				...dropped_images,
 				{
@@ -207,14 +224,14 @@
 					blob: file,
 					url,
 					img,
-					x,
-					y,
+					x: centerX - w / 2,
+					y: centerY - h / 2,
 					w,
 					h
 				}
 			];
 		}
-	};
+	}
 
 	async function loadHtmlImage(url: string): Promise<HTMLImageElement> {
 		return new Promise((resolve, reject) => {
@@ -338,6 +355,7 @@
 			}
 		}
 	}
+
 </script>
 
 <div
@@ -351,6 +369,8 @@
 		style={`width:${document_width}px; height:${document_height}px;`}
 		ondragover={onDragOver}
 		ondrop={onDrop}
+		onmousemove={onMouseMove}
+		onmouseleave={onMouseLeave}
 		role="region"
 	>
 		{#if document_width && document_height}
