@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Page from './Page.svelte';
 	import { db } from '$lib/db';
+	import { loadHtmlImage } from '$lib/image';
 	import { onMount } from 'svelte';
 
 	interface Props {
@@ -128,14 +129,6 @@
 
 	onMount(load_images_from_db);
 
-	async function loadHtmlImage(url: string): Promise<HTMLImageElement> {
-		return new Promise((resolve, reject) => {
-			const img = new Image();
-			img.onload = () => resolve(img);
-			img.onerror = reject;
-			img.src = url;
-		});
-	}
 </script>
 
 {#if pages_images !== null}

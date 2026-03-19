@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { copyImageToClipboard } from '$lib/clipboard';
+	import { loadHtmlImage } from '$lib/image';
 	import type { KonvaEventObject } from 'konva/lib/Node';
 	import { onDestroy, onMount } from 'svelte';
 	import {
@@ -233,14 +235,6 @@
 		}
 	}
 
-	async function loadHtmlImage(url: string): Promise<HTMLImageElement> {
-		return new Promise((resolve, reject) => {
-			const img = new Image();
-			img.onload = () => resolve(img);
-			img.onerror = reject;
-			img.src = url;
-		});
-	}
 
 	// ----------------- Selection & Transformer ------------------
 
@@ -361,25 +355,6 @@
 		}
 	}
 
-	async function copyImageToClipboard(blob: Blob) {
-		const png = await blobToPng(blob);
-		await navigator.clipboard.write([new ClipboardItem({ 'image/png': png })]);
-	}
-
-	async function blobToPng(blob: Blob): Promise<Blob> {
-		const url = URL.createObjectURL(blob);
-		const img = await loadHtmlImage(url);
-		URL.revokeObjectURL(url);
-
-		const canvas = window.document.createElement('canvas');
-		canvas.width = img.naturalWidth;
-		canvas.height = img.naturalHeight;
-		canvas.getContext('2d')!.drawImage(img, 0, 0);
-
-		return new Promise((resolve, reject) =>
-			canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/png')
-		);
-	}
 
 </script>
 
