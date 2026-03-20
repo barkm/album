@@ -65,6 +65,8 @@
 	let ro: ResizeObserver | null = null;
 
 	onMount(async () => {
+		history = [[...dropped_images]];
+		history_index = 0;
 		layout();
 		ro = new ResizeObserver(layout);
 		if (view_port) {
@@ -117,6 +119,15 @@
 			};
 		})
 	);
+
+	let history: DroppedImage[][] = [];
+	let history_index = 0;
+
+	function pushHistory() {
+		history = history.slice(0, history_index + 1);
+		history.push([...dropped_images]);
+		history_index++;
+	}
 
 	$effect(() => {
 		images = dropped_images.map(({ id, blob, url, img, w, h, x, y }) => ({
@@ -232,6 +243,7 @@
 					h
 				}
 			];
+			pushHistory();
 		}
 	}
 
@@ -239,6 +251,30 @@
 
 	let transformer: Transformer | null = $state(null);
 	let selected_id: string | null = null;
+
+	// ----------------- Undo / Redo ------------------
+
+	function clearSelection() {
+		selected_id = null;
+		if (transformer) {
+			transformer.node.nodes([]);
+			transformer.node.getLayer()?.batchDraw();
+		}
+	}
+
+	function undo() {
+		if (history_index <= 0) return;
+		history_index--;
+		dropped_images = [...history[history_index]];
+		clearSelection();
+	}
+
+	function redo() {
+		if (history_index >= history.length - 1) return;
+		history_index++;
+		dropped_images = [...history[history_index]];
+		clearSelection();
+	}
 
 	// 3. Type the Mouse Event
 	function handleSelect(e: KonvaEventObject<MouseEvent>, item: DroppedImage) {
@@ -297,8 +333,8 @@
 				w: constrained_size.w,
 				h: constrained_size.h
 			};
-			// Trigger reactivity
 			dropped_images = [...dropped_images];
+			pushHistory();
 		}
 	}
 
@@ -311,8 +347,8 @@
 				x: node.x(),
 				y: node.y()
 			};
-			// Trigger reactivity
 			dropped_images = [...dropped_images];
+			pushHistory();
 		}
 	}
 
@@ -333,18 +369,10 @@
 	function handleKeyDown(e: KeyboardEvent) {
 		if (e.key === 'Backspace' || e.key === 'Delete') {
 			if (selected_id) {
-				// Prevent the browser from navigating back (default Backspace behavior)
 				e.preventDefault();
-
-				// Remove the item from the list
 				dropped_images = dropped_images.filter((img) => img.id !== selected_id);
-
-				// Clear the selection state
-				selected_id = null;
-				if (transformer) {
-					transformer.node.nodes([]);
-					transformer.node.getLayer()?.batchDraw();
-				}
+				clearSelection();
+				pushHistory();
 			}
 		}
 
@@ -354,13 +382,16 @@
 				copyImageToClipboard(img.blob);
 				if (e.key === 'x') {
 					dropped_images = dropped_images.filter((i) => i.id !== selected_id);
-					selected_id = null;
-					if (transformer) {
-						transformer.node.nodes([]);
-						transformer.node.getLayer()?.batchDraw();
-					}
+					clearSelection();
+					pushHistory();
 				}
 			}
+		}
+
+		if ((e.ctrlKey || e.metaKey) && e.key === 'z' && mouse_world) {
+			e.preventDefault();
+			if (e.shiftKey) redo();
+			else undo();
 		}
 	}
 </script>
