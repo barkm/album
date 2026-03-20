@@ -237,8 +237,7 @@
 					blob: file,
 					url,
 					img,
-					x: centerX - w / 2,
-					y: centerY - h / 2,
+					...clampPosition(centerX - w / 2, centerY - h / 2, w, h),
 					w,
 					h
 				}
@@ -299,6 +298,20 @@
 		}
 	}
 
+	function clampPosition(x: number, y: number, w: number, h: number) {
+		return {
+			x: Math.max(0, Math.min(x, width - w)),
+			y: Math.max(0, Math.min(y, height - h))
+		};
+	}
+
+	function makeDragBoundFunc(item: DroppedImage) {
+		return (pos: { x: number; y: number }) => ({
+			x: Math.max(0, Math.min(pos.x, (width - item.w) * konva_scale)),
+			y: Math.max(0, Math.min(pos.y, (height - item.h) * konva_scale))
+		});
+	}
+
 	const constrainSize = (newW: number, newH: number) => {
 		const { w, h } = fit_to_max_side(newW, newH);
 		if (w < min_side || h < min_side) {
@@ -326,10 +339,13 @@
 			const new_width = node.width() * scale;
 			const new_height = node.height() * scale;
 			const constrained_size = constrainSize(new_width, new_height);
+			const { x, y } = clampPosition(node.x(), node.y(), constrained_size.w, constrained_size.h);
+			node.x(x);
+			node.y(y);
 			dropped_images[index] = {
 				...dropped_images[index],
-				x: node.x(),
-				y: node.y(),
+				x,
+				y,
 				w: constrained_size.w,
 				h: constrained_size.h
 			};
@@ -423,6 +439,7 @@
 								width={it.w}
 								height={it.h}
 								draggable={true}
+								dragBoundFunc={makeDragBoundFunc(it)}
 								onmousedown={(e) => handleSelect(e, it)}
 								ondragend={(e) => handleDragEnd(e, it)}
 								ontransformend={handleTransformEnd}
