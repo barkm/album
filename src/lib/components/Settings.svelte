@@ -61,7 +61,7 @@
 		<label class="block">
 			<span class="block text-sm font-medium">Resolution (px/cm)</span>
 			<input
-				class="mt-1 w-40 rounded border border-white/20 bg-white/5 px-3 py-1 text-white"
+				class="mt-1 w-40 rounded border border-gray-500 bg-gray-700 px-3 py-1 text-white focus:border-gray-400 focus:outline-none"
 				type="number"
 				min="1"
 				step="1"
@@ -73,14 +73,14 @@
 			<span class="block text-sm font-medium">Album size (cm)</span>
 			<div class="mt-1 flex gap-2">
 				<input
-					class="w-24 rounded border border-white/20 bg-white/5 px-3 py-1 text-white"
+					class="w-24 rounded border border-gray-500 bg-gray-700 px-3 py-1 text-white focus:border-gray-400 focus:outline-none"
 					type="number"
 					min="1"
 					step="0.1"
 					bind:value={draft_album_size_cm.width}
 				/>
 				<input
-					class="w-24 rounded border border-white/20 bg-white/5 px-3 py-1 text-white"
+					class="w-24 rounded border border-gray-500 bg-gray-700 px-3 py-1 text-white focus:border-gray-400 focus:outline-none"
 					type="number"
 					min="1"
 					step="0.1"
@@ -93,14 +93,14 @@
 			<span class="block text-sm font-medium">Paper size (cm)</span>
 			<div class="mt-1 flex gap-2">
 				<input
-					class="w-24 rounded border border-white/20 bg-white/5 px-3 py-1 text-white"
+					class="w-24 rounded border border-gray-500 bg-gray-700 px-3 py-1 text-white focus:border-gray-400 focus:outline-none"
 					type="number"
 					min="1"
 					step="0.1"
 					bind:value={draft_paper_size_cm.width}
 				/>
 				<input
-					class="w-24 rounded border border-white/20 bg-white/5 px-3 py-1 text-white"
+					class="w-24 rounded border border-gray-500 bg-gray-700 px-3 py-1 text-white focus:border-gray-400 focus:outline-none"
 					type="number"
 					min="1"
 					step="0.1"
@@ -112,7 +112,7 @@
 		<div>
 			<span class="block text-sm font-medium">Border padding (px)</span>
 			<input
-				class="mt-1 w-40 rounded border border-white/20 bg-white/5 px-3 py-1 text-white"
+				class="mt-1 w-40 rounded border border-gray-500 bg-gray-700 px-3 py-1 text-white focus:border-gray-400 focus:outline-none"
 				type="number"
 				min="0"
 				step="1"
@@ -123,7 +123,7 @@
 		<div>
 			<span class="block text-sm font-medium">Image padding (px)</span>
 			<input
-				class="mt-1 w-40 rounded border border-white/20 bg-white/5 px-3 py-1 text-white"
+				class="mt-1 w-40 rounded border border-gray-500 bg-gray-700 px-3 py-1 text-white focus:border-gray-400 focus:outline-none"
 				type="number"
 				min="0"
 				step="1"
@@ -131,36 +131,41 @@
 			/>
 		</div>
 
-		<label class="block">
+		<div>
 			<span class="block text-sm font-medium">Page layout</span>
-			<select
-				class="mt-1 w-40 rounded border border-white/20 bg-white/5 px-3 py-1 text-white"
-				bind:value={draft_page_layout}
-			>
-				<option value="single">Single</option>
-				<option value="spread">Spread</option>
-			</select>
-		</label>
+			<div class="mt-1 flex rounded-lg bg-gray-700 p-1 gap-1 w-fit">
+				<button
+					type="button"
+					class="rounded px-4 py-1 text-sm font-medium transition-colors {draft_page_layout === 'single' ? 'bg-white text-gray-900 shadow' : 'text-gray-300 hover:text-white'}"
+					onclick={() => (draft_page_layout = 'single')}
+				>
+					Single
+				</button>
+				<button
+					type="button"
+					class="rounded px-4 py-1 text-sm font-medium transition-colors {draft_page_layout === 'spread' ? 'bg-white text-gray-900 shadow' : 'text-gray-300 hover:text-white'}"
+					onclick={() => (draft_page_layout = 'spread')}
+				>
+					Spread
+				</button>
+			</div>
+		</div>
 	</div>
 
 	<div class="flex gap-2">
 		<button
-			class="rounded bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20"
+			class="rounded px-4 py-2 text-sm font-medium transition-colors {has_changes() ? 'bg-white text-gray-900 shadow' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}"
 			type="button"
 			onclick={save_settings}
 			disabled={!has_changes()}
-			class:opacity-50={!has_changes()}
-			class:cursor-not-allowed={!has_changes()}
 		>
 			Save
 		</button>
 		<button
-			class="rounded border border-white/20 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
+			class="rounded px-4 py-2 text-sm font-medium transition-colors {has_changes() ? 'bg-gray-700 text-gray-300 hover:text-white' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}"
 			type="button"
 			onclick={cancel_changes}
 			disabled={!has_changes()}
-			class:opacity-50={!has_changes()}
-			class:cursor-not-allowed={!has_changes()}
 		>
 			Cancel
 		</button>

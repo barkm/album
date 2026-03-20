@@ -200,7 +200,7 @@
 		</div>
 		<div class="flex justify-center">
 			<button
-				class="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-400"
+				class="rounded bg-gray-700 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:text-white"
 				onclick={() => {
 					if (!pages_images) return;
 					pages_images.push([]);

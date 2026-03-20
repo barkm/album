@@ -138,15 +138,6 @@
 	};
 </script>
 
-<div class="mb-4 flex justify-end">
-	<button
-		class="rounded bg-gray-700 px-4 py-2 text-sm text-white"
-		onclick={download_all_bins}
-		type="button"
-	>
-		Download
-	</button>
-</div>
 <div class="grid grid-cols-3 gap-4">
 	{#each bins as bin}
 		<div class="relative bg-white" style="aspect-ratio: {width} / {height};">
@@ -193,4 +184,13 @@
 			{/each}
 		</div>
 	{/each}
+</div>
+<div class="mt-4 flex justify-center">
+	<button
+		class="rounded bg-gray-700 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:text-white"
+		onclick={download_all_bins}
+		type="button"
+	>
+		Download
+	</button>
 </div>

@@ -26,25 +26,22 @@
 </script>
 
 <div class="flex flex-col items-center justify-center bg-gray-600 p-10">
-	<div class="mb-6 flex gap-4">
+	<div class="mb-6 flex rounded-lg bg-gray-700 p-1 gap-1">
 		<button
-			class="rounded bg-gray-500 px-4 py-2 text-white opacity-50 disabled:opacity-100"
+			class="rounded px-4 py-2 text-sm font-medium transition-colors {view === 'layout' ? 'bg-white text-gray-900 shadow' : 'text-gray-300 hover:text-white'}"
 			onclick={() => (view = 'layout')}
-			disabled={view === 'layout'}
 		>
 			Layout
 		</button>
 		<button
-			class="rounded bg-gray-500 px-4 py-2 text-white opacity-50 disabled:opacity-100"
+			class="rounded px-4 py-2 text-sm font-medium transition-colors {view === 'print' ? 'bg-white text-gray-900 shadow' : 'text-gray-300 hover:text-white'}"
 			onclick={() => (view = 'print')}
-			disabled={view === 'print'}
 		>
 			Print
 		</button>
 		<button
-			class="rounded bg-gray-500 px-4 py-2 text-white opacity-50 disabled:opacity-100"
+			class="rounded px-4 py-2 text-sm font-medium transition-colors {view === 'settings' ? 'bg-white text-gray-900 shadow' : 'text-gray-300 hover:text-white'}"
 			onclick={() => (view = 'settings')}
-			disabled={view === 'settings'}
 		>
 			Settings
 		</button>
