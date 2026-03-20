@@ -3,7 +3,17 @@
 	import Print from '$lib/components/Print.svelte';
 	import Settings from '$lib/components/Settings.svelte';
 
-	let images: { url: string; width: number; height: number }[] = $state([]);
+	let images: {
+		url: string;
+		width: number;
+		height: number;
+		naturalWidth: number;
+		naturalHeight: number;
+		cropX?: number;
+		cropY?: number;
+		cropWidth?: number;
+		cropHeight?: number;
+	}[] = $state([]);
 
 	let resolution_pxcm = $state(200);
 	let album_size_cm = $state({ width: 24.5, height: 23 });

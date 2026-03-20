@@ -9,6 +9,7 @@
 		Stage,
 		Image as KonvaImage,
 		Transformer,
+		Rect,
 		type KonvaDragTransformEvent
 	} from 'svelte-konva';
 
@@ -28,6 +29,12 @@
 			height: number;
 			x: number;
 			y: number;
+			naturalWidth: number;
+			naturalHeight: number;
+			cropX?: number;
+			cropY?: number;
+			cropWidth?: number;
+			cropHeight?: number;
 		}[];
 	}
 
@@ -92,6 +99,10 @@
 		y: number;
 		w: number;
 		h: number;
+		cropX?: number;
+		cropY?: number;
+		cropWidth?: number;
+		cropHeight?: number;
 	};
 
 	const fit_to_max_side = (naturalW: number, naturalH: number) => {
@@ -115,7 +126,11 @@
 				img: it.image,
 				blob: it.blob,
 				w,
-				h
+				h,
+				cropX: it.cropX,
+				cropY: it.cropY,
+				cropWidth: it.cropWidth,
+				cropHeight: it.cropHeight
 			};
 		})
 	);
@@ -130,16 +145,24 @@
 	}
 
 	$effect(() => {
-		images = dropped_images.map(({ id, blob, url, img, w, h, x, y }) => ({
-			id,
-			blob,
-			url,
-			image: img,
-			width: w,
-			height: h,
-			x,
-			y
-		}));
+		images = dropped_images.map(
+			({ id, blob, url, img, w, h, x, y, cropX, cropY, cropWidth, cropHeight }) => ({
+				id,
+				blob,
+				url,
+				image: img,
+				width: w,
+				height: h,
+				x,
+				y,
+				naturalWidth: img.naturalWidth,
+				naturalHeight: img.naturalHeight,
+				cropX,
+				cropY,
+				cropWidth,
+				cropHeight
+			})
+		);
 	});
 
 	const onDragOver = (e: DragEvent) => {
@@ -244,6 +267,98 @@
 			];
 			pushHistory();
 		}
+	}
+
+	// ----------------- Crop ------------------
+
+	type CropState = {
+		imageId: string;
+		cx: number;
+		cy: number;
+		cw: number;
+		ch: number;
+		fullX: number;
+		fullY: number;
+		fullW: number;
+		fullH: number;
+	};
+	let crop_state: CropState | null = $state(null);
+	let crop_rect_node: Rect | null = $state(null);
+	let crop_transformer: Transformer | null = $state(null);
+
+	$effect(() => {
+		if (crop_transformer && crop_rect_node) {
+			crop_transformer.node.nodes([crop_rect_node.node]);
+			crop_transformer.node.getLayer()?.batchDraw();
+		}
+	});
+
+	function enterCropMode() {
+		if (!selected_id) return;
+		const img = dropped_images.find((i) => i.id === selected_id);
+		if (!img) return;
+		clearSelection();
+		const srcX = img.cropX ?? 0;
+		const srcY = img.cropY ?? 0;
+		const srcW = img.cropWidth ?? img.img.naturalWidth;
+		const srcH = img.cropHeight ?? img.img.naturalHeight;
+		const scaleX = img.w / srcW;
+		const scaleY = img.h / srcH;
+		crop_state = {
+			imageId: img.id,
+			cx: img.x,
+			cy: img.y,
+			cw: img.w,
+			ch: img.h,
+			fullX: img.x - srcX * scaleX,
+			fullY: img.y - srcY * scaleY,
+			fullW: img.img.naturalWidth * scaleX,
+			fullH: img.img.naturalHeight * scaleY
+		};
+	}
+
+	function confirmCrop() {
+		if (!crop_state) return;
+		const index = dropped_images.findIndex((i) => i.id === crop_state!.imageId);
+		if (index === -1) {
+			crop_state = null;
+			return;
+		}
+		const img = dropped_images[index];
+
+		// Convert crop rect from world coords to natural pixels using full image extent as reference
+		const scaleToNatural = img.img.naturalWidth / crop_state.fullW;
+		const newCropX = (crop_state.cx - crop_state.fullX) * scaleToNatural;
+		const newCropY =
+			(crop_state.cy - crop_state.fullY) * (img.img.naturalHeight / crop_state.fullH);
+		const newCropW = crop_state.cw * scaleToNatural;
+		const newCropH = crop_state.ch * (img.img.naturalHeight / crop_state.fullH);
+
+		const { x: newX, y: newY } = clampPosition(
+			crop_state.cx,
+			crop_state.cy,
+			crop_state.cw,
+			crop_state.ch
+		);
+
+		dropped_images[index] = {
+			...img,
+			x: newX,
+			y: newY,
+			w: crop_state.cw,
+			h: crop_state.ch,
+			cropX: newCropX,
+			cropY: newCropY,
+			cropWidth: newCropW,
+			cropHeight: newCropH
+		};
+		dropped_images = [...dropped_images];
+		crop_state = null;
+		pushHistory();
+	}
+
+	function cancelCrop() {
+		crop_state = null;
 	}
 
 	// ----------------- Selection & Transformer ------------------
@@ -404,6 +519,20 @@
 			}
 		}
 
+		if (e.key === 'c' && !e.metaKey && !e.ctrlKey && mouse_world && selected_id) {
+			enterCropMode();
+		}
+
+		if (crop_state) {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				confirmCrop();
+			}
+			if (e.key === 'Escape') {
+				cancelCrop();
+			}
+		}
+
 		if ((e.ctrlKey || e.metaKey) && e.key === 'z' && mouse_world) {
 			e.preventDefault();
 			if (e.shiftKey) redo();
@@ -432,22 +561,94 @@
 				<Layer>
 					<Group scaleX={konva_scale} scaleY={konva_scale}>
 						{#each dropped_images as it (it.id)}
+							{@const _cs = crop_state}
+							{@const is_crop_target = _cs !== null && _cs.imageId === it.id}
 							<KonvaImage
 								image={it.img}
-								x={it.x}
-								y={it.y}
-								width={it.w}
-								height={it.h}
-								draggable={true}
+								x={is_crop_target ? _cs!.fullX : it.x}
+								y={is_crop_target ? _cs!.fullY : it.y}
+								width={is_crop_target ? _cs!.fullW : it.w}
+								height={is_crop_target ? _cs!.fullH : it.h}
+								draggable={crop_state === null}
 								dragBoundFunc={makeDragBoundFunc(it)}
 								onmousedown={(e) => handleSelect(e, it)}
 								ondragend={(e) => handleDragEnd(e, it)}
 								ontransformend={handleTransformEnd}
 								ontransform={handleTransform}
+								cropX={is_crop_target ? undefined : it.cropX}
+								cropY={is_crop_target ? undefined : it.cropY}
+								cropWidth={is_crop_target ? undefined : it.cropWidth}
+								cropHeight={is_crop_target ? undefined : it.cropHeight}
 							/>
 						{/each}
 
-						<Transformer bind:this={transformer} flipEnabled={false} />
+						{#if crop_state}
+							<Rect
+								x={crop_state.cx}
+								y={crop_state.cy}
+								width={crop_state.cw}
+								height={crop_state.ch}
+								stroke="rgba(100,220,100,0.85)"
+								fill="rgba(100,220,100,0.15)"
+								strokeWidth={2 / konva_scale}
+								draggable={true}
+								dragBoundFunc={(pos) => {
+									if (!crop_state) return pos;
+									const imgLeft = crop_state.fullX * konva_scale;
+									const imgTop = crop_state.fullY * konva_scale;
+									const imgRight = (crop_state.fullX + crop_state.fullW) * konva_scale;
+									const imgBottom = (crop_state.fullY + crop_state.fullH) * konva_scale;
+									const cwStage = crop_state.cw * konva_scale;
+									const chStage = crop_state.ch * konva_scale;
+									return {
+										x: Math.max(imgLeft, Math.min(pos.x, imgRight - cwStage)),
+										y: Math.max(imgTop, Math.min(pos.y, imgBottom - chStage))
+									};
+								}}
+								ondragend={() => {
+									if (!crop_state || !crop_rect_node) return;
+									const node = crop_rect_node.node;
+									crop_state = { ...crop_state, cx: node.x(), cy: node.y() };
+								}}
+								ontransformend={() => {
+									if (!crop_state || !crop_rect_node) return;
+									const node = crop_rect_node.node;
+									const newW = node.width() * node.scaleX();
+									const newH = node.height() * node.scaleY();
+									node.scaleX(1);
+									node.scaleY(1);
+									node.width(newW);
+									node.height(newH);
+									crop_state = { ...crop_state, cx: node.x(), cy: node.y(), cw: newW, ch: newH };
+								}}
+								bind:this={crop_rect_node}
+							/>
+							<Transformer
+								bind:this={crop_transformer}
+								rotateEnabled={false}
+								flipEnabled={false}
+								boundBoxFunc={(oldBox, newBox) => {
+									if (!crop_state) return oldBox;
+									const imgLeft = crop_state.fullX * konva_scale;
+									const imgTop = crop_state.fullY * konva_scale;
+									const imgRight = (crop_state.fullX + crop_state.fullW) * konva_scale;
+									const imgBottom = (crop_state.fullY + crop_state.fullH) * konva_scale;
+									const minSize = min_side * konva_scale;
+									const x = Math.max(imgLeft, Math.min(newBox.x, imgRight - minSize));
+									const y = Math.max(imgTop, Math.min(newBox.y, imgBottom - minSize));
+									const width = Math.min(newBox.width, imgRight - x);
+									const height = Math.min(newBox.height, imgBottom - y);
+									if (width < minSize || height < minSize) return oldBox;
+									return { ...newBox, x, y, width, height };
+								}}
+							/>
+						{/if}
+
+						<Transformer
+							bind:this={transformer}
+							flipEnabled={false}
+							visible={crop_state === null}
+						/>
 					</Group>
 				</Layer>
 			</Stage>

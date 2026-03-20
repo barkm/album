@@ -6,7 +6,17 @@
 		height: number;
 		border_padding: number;
 		image_padding: number;
-		images: { url: string; width: number; height: number }[];
+		images: {
+			url: string;
+			width: number;
+			height: number;
+			naturalWidth: number;
+			naturalHeight: number;
+			cropX?: number;
+			cropY?: number;
+			cropWidth?: number;
+			cropHeight?: number;
+		}[];
 	}
 
 	const { width, height, border_padding, image_padding, images }: Props = $props();
@@ -27,7 +37,18 @@
 	};
 
 	const download_bin = async (
-		bin: PackedRectangle<{ url: string; width: number; height: number; rotated: boolean }>[],
+		bin: PackedRectangle<{
+			url: string;
+			width: number;
+			height: number;
+			naturalWidth: number;
+			naturalHeight: number;
+			cropX?: number;
+			cropY?: number;
+			cropWidth?: number;
+			cropHeight?: number;
+			rotated: boolean;
+		}>[],
 		index: number
 	) => {
 		const canvas = document.createElement('canvas');
@@ -42,7 +63,35 @@
 		for (const rect of bin) {
 			const img = await load_image(rect.url);
 			ctx.save();
-			if (rect.rotated) {
+			if (rect.cropX !== undefined) {
+				if (rect.rotated) {
+					ctx.translate(rect.x, rect.y);
+					ctx.rotate((90 * Math.PI) / 180);
+					ctx.drawImage(
+						img,
+						rect.cropX,
+						rect.cropY!,
+						rect.cropWidth!,
+						rect.cropHeight!,
+						0,
+						-rect.width,
+						rect.height,
+						rect.width
+					);
+				} else {
+					ctx.drawImage(
+						img,
+						rect.cropX,
+						rect.cropY!,
+						rect.cropWidth!,
+						rect.cropHeight!,
+						rect.x,
+						rect.y,
+						rect.width,
+						rect.height
+					);
+				}
+			} else if (rect.rotated) {
 				ctx.translate(rect.x, rect.y);
 				ctx.rotate((90 * Math.PI) / 180);
 				ctx.drawImage(img, 0, -rect.width, rect.height, rect.width);
@@ -59,7 +108,17 @@
 	};
 
 	const pack_catch_error = (
-		images: { url: string; width: number; height: number }[],
+		images: {
+			url: string;
+			width: number;
+			height: number;
+			naturalWidth: number;
+			naturalHeight: number;
+			cropX?: number;
+			cropY?: number;
+			cropWidth?: number;
+			cropHeight?: number;
+		}[],
 		width: number,
 		height: number
 	) => {
@@ -92,19 +151,45 @@
 	{#each bins as bin}
 		<div class="relative bg-white" style="aspect-ratio: {width} / {height};">
 			{#each bin as rect}
-				<img
-					src={rect.url}
-					alt=""
-					class="absolute"
-					style="
-							width: {(rect.rotated ? rect.height / width : rect.width / width) * 100}%;
-							height: {(rect.rotated ? rect.width / height : rect.height / height) * 100}%;
-							top: {(rect.y / height) * 100}%;
-							left: {(rect.x / width) * 100}%;
-							transform: {rect.rotated ? 'rotate(90deg) translate(0, -100%)' : 'none'};
-							transform-origin: top left;
-						"
-				/>
+				{#if rect.cropX !== undefined}
+					{@const bgPosX =
+						rect.cropWidth! < rect.naturalWidth
+							? (rect.cropX / (rect.naturalWidth - rect.cropWidth!)) * 100
+							: 0}
+					{@const bgPosY =
+						rect.cropHeight! < rect.naturalHeight
+							? (rect.cropY! / (rect.naturalHeight - rect.cropHeight!)) * 100
+							: 0}
+					<div
+						class="absolute"
+						style="
+								width: {(rect.rotated ? rect.height / width : rect.width / width) * 100}%;
+								height: {(rect.rotated ? rect.width / height : rect.height / height) * 100}%;
+								top: {(rect.y / height) * 100}%;
+								left: {(rect.x / width) * 100}%;
+								transform: {rect.rotated ? 'rotate(90deg) translate(0, -100%)' : 'none'};
+								transform-origin: top left;
+								background-image: url('{rect.url}');
+								background-size: {(rect.naturalWidth / rect.cropWidth!) * 100}% auto;
+								background-position: {bgPosX}% {bgPosY}%;
+								background-repeat: no-repeat;
+							"
+					></div>
+				{:else}
+					<img
+						src={rect.url}
+						alt=""
+						class="absolute"
+						style="
+								width: {(rect.rotated ? rect.height / width : rect.width / width) * 100}%;
+								height: {(rect.rotated ? rect.width / height : rect.height / height) * 100}%;
+								top: {(rect.y / height) * 100}%;
+								left: {(rect.x / width) * 100}%;
+								transform: {rect.rotated ? 'rotate(90deg) translate(0, -100%)' : 'none'};
+								transform-origin: top left;
+							"
+					/>
+				{/if}
 			{/each}
 		</div>
 	{/each}

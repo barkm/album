@@ -9,6 +9,10 @@ interface Image {
 	height: number;
 	x: number;
 	y: number;
+	cropX?: number;
+	cropY?: number;
+	cropWidth?: number;
+	cropHeight?: number;
 }
 
 const db = new Dexie('ImagesDatabase') as Dexie & {

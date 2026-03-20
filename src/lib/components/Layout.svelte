@@ -11,7 +11,17 @@
 			long: number;
 			short: number;
 		};
-		images: { url: string; width: number; height: number }[];
+		images: {
+			url: string;
+			width: number;
+			height: number;
+			naturalWidth: number;
+			naturalHeight: number;
+			cropX?: number;
+			cropY?: number;
+			cropWidth?: number;
+			cropHeight?: number;
+		}[];
 		page_layout: 'spread' | 'single';
 	}
 
@@ -33,20 +43,50 @@
 				height: number;
 				x: number;
 				y: number;
+				naturalWidth: number;
+				naturalHeight: number;
+				cropX?: number;
+				cropY?: number;
+				cropWidth?: number;
+				cropHeight?: number;
 		  }[][]
 		| null = $state(null);
 
 	$effect(() => {
 		if (!pages_images) return;
-		images = pages_images.flat().map(({ blob, url, image, width, height, x, y }) => ({
-			blob,
-			url,
-			image,
-			width,
-			height,
-			x,
-			y
-		}));
+		images = pages_images
+			.flat()
+			.map(
+				({
+					blob,
+					url,
+					image,
+					width,
+					height,
+					x,
+					y,
+					naturalWidth,
+					naturalHeight,
+					cropX,
+					cropY,
+					cropWidth,
+					cropHeight
+				}) => ({
+					blob,
+					url,
+					image,
+					width,
+					height,
+					x,
+					y,
+					naturalWidth,
+					naturalHeight,
+					cropX,
+					cropY,
+					cropWidth,
+					cropHeight
+				})
+			);
 	});
 
 	$effect(() => {
@@ -75,13 +115,23 @@
 						width: img.width,
 						height: img.height,
 						x: img.x,
-						y: img.y
+						y: img.y,
+						cropX: img.cropX,
+						cropY: img.cropY,
+						cropWidth: img.cropWidth,
+						cropHeight: img.cropHeight
 					});
 				} else {
 					await db.images.update(img.id, {
 						page: page,
+						width: img.width,
+						height: img.height,
 						x: img.x,
-						y: img.y
+						y: img.y,
+						cropX: img.cropX,
+						cropY: img.cropY,
+						cropWidth: img.cropWidth,
+						cropHeight: img.cropHeight
 					});
 				}
 			}
@@ -109,17 +159,24 @@
 
 		for (const img of imgs) {
 			const url = URL.createObjectURL(img.data);
+			const htmlImg = await loadHtmlImage(url);
 			loaded_pages[img.page] = [
 				...loaded_pages[img.page],
 				{
 					id: img.id,
 					blob: img.data,
 					url,
-					image: await loadHtmlImage(url),
+					image: htmlImg,
 					width: img.width,
 					height: img.height,
 					x: img.x,
-					y: img.y
+					y: img.y,
+					naturalWidth: htmlImg.naturalWidth,
+					naturalHeight: htmlImg.naturalHeight,
+					cropX: img.cropX,
+					cropY: img.cropY,
+					cropWidth: img.cropWidth,
+					cropHeight: img.cropHeight
 				}
 			];
 		}
