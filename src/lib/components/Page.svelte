@@ -647,6 +647,7 @@
 						<Transformer
 							bind:this={transformer}
 							flipEnabled={false}
+							rotateEnabled={false}
 							visible={crop_state === null}
 						/>
 					</Group>
