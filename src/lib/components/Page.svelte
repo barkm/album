@@ -364,7 +364,7 @@
 	// ----------------- Selection & Transformer ------------------
 
 	let transformer: Transformer | null = $state(null);
-	let selected_id: string | null = null;
+	let selected_id: string | null = $state(null);
 
 	// ----------------- Undo / Redo ------------------
 
@@ -548,7 +548,7 @@
 >
 	<div
 		bind:this={document}
-		class="overflow-hidden rounded-sm bg-white shadow-lg"
+		class="relative overflow-hidden rounded-sm bg-white shadow-lg"
 		style={`width:${document_width}px; height:${document_height}px;`}
 		ondragover={onDragOver}
 		ondrop={onDrop}
@@ -652,6 +652,36 @@
 					</Group>
 				</Layer>
 			</Stage>
+		{/if}
+		{#if selected_id && !crop_state}
+			{@const sel = dropped_images.find((i) => i.id === selected_id)}
+			{#if sel}
+				<div
+					class="absolute flex gap-1"
+					style={`left: ${Math.round((sel.x + sel.w) * konva_scale)}px; top: ${Math.round(sel.y * konva_scale)}px; transform: translate(calc(-100% - 6px), 6px);`}
+				>
+					<button
+						class="rounded bg-black/50 p-1.5 text-white backdrop-blur-sm transition-colors hover:bg-black/70"
+						onclick={enterCropMode}
+						title="Crop (C)"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="14"
+							height="14"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2.5"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M6 2v14a2 2 0 0 0 2 2h14" />
+							<path d="M18 22V8a2 2 0 0 0-2-2H2" />
+						</svg>
+					</button>
+				</div>
+			{/if}
 		{/if}
 	</div>
 </div>

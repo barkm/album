@@ -133,17 +133,23 @@
 
 		<div>
 			<span class="block text-sm font-medium">Page layout</span>
-			<div class="mt-1 flex rounded-lg bg-gray-700 p-1 gap-1 w-fit">
+			<div class="mt-1 flex w-fit gap-1 rounded-lg bg-gray-700 p-1">
 				<button
 					type="button"
-					class="rounded px-4 py-1 text-sm font-medium transition-colors {draft_page_layout === 'single' ? 'bg-white text-gray-900 shadow' : 'text-gray-300 hover:text-white'}"
+					class="rounded px-4 py-1 text-sm font-medium transition-colors {draft_page_layout ===
+					'single'
+						? 'bg-white text-gray-900 shadow'
+						: 'text-gray-300 hover:text-white'}"
 					onclick={() => (draft_page_layout = 'single')}
 				>
 					Single
 				</button>
 				<button
 					type="button"
-					class="rounded px-4 py-1 text-sm font-medium transition-colors {draft_page_layout === 'spread' ? 'bg-white text-gray-900 shadow' : 'text-gray-300 hover:text-white'}"
+					class="rounded px-4 py-1 text-sm font-medium transition-colors {draft_page_layout ===
+					'spread'
+						? 'bg-white text-gray-900 shadow'
+						: 'text-gray-300 hover:text-white'}"
 					onclick={() => (draft_page_layout = 'spread')}
 				>
 					Spread
@@ -154,7 +160,9 @@
 
 	<div class="flex gap-2">
 		<button
-			class="rounded px-4 py-2 text-sm font-medium transition-colors {has_changes() ? 'bg-white text-gray-900 shadow' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}"
+			class="rounded px-4 py-2 text-sm font-medium transition-colors {has_changes()
+				? 'bg-white text-gray-900 shadow'
+				: 'cursor-not-allowed bg-gray-700 text-gray-500'}"
 			type="button"
 			onclick={save_settings}
 			disabled={!has_changes()}
@@ -162,7 +170,9 @@
 			Save
 		</button>
 		<button
-			class="rounded px-4 py-2 text-sm font-medium transition-colors {has_changes() ? 'bg-gray-700 text-gray-300 hover:text-white' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}"
+			class="rounded px-4 py-2 text-sm font-medium transition-colors {has_changes()
+				? 'bg-gray-700 text-gray-300 hover:text-white'
+				: 'cursor-not-allowed bg-gray-700 text-gray-500'}"
 			type="button"
 			onclick={cancel_changes}
 			disabled={!has_changes()}
