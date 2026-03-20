@@ -16,6 +16,5 @@ async function blobToPng(blob: Blob): Promise<Blob> {
 }
 
 export async function copyImageToClipboard(blob: Blob) {
-	const png = await blobToPng(blob);
-	await navigator.clipboard.write([new ClipboardItem({ 'image/png': png })]);
+	await navigator.clipboard.write([new ClipboardItem({ 'image/png': blobToPng(blob) })]);
 }
