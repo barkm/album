@@ -348,9 +348,19 @@
 			}
 		}
 
-		if ((e.ctrlKey || e.metaKey) && e.key === 'c' && selected_id) {
+		if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'x') && selected_id) {
 			const img = dropped_images.find((img) => img.id === selected_id);
-			if (img) copyImageToClipboard(img.blob);
+			if (img) {
+				copyImageToClipboard(img.blob);
+				if (e.key === 'x') {
+					dropped_images = dropped_images.filter((i) => i.id !== selected_id);
+					selected_id = null;
+					if (transformer) {
+						transformer.node.nodes([]);
+						transformer.node.getLayer()?.batchDraw();
+					}
+				}
+			}
 		}
 	}
 </script>
