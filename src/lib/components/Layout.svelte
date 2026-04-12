@@ -195,7 +195,20 @@
 			class:grid-cols-2={view === 'spread'}
 		>
 			{#each pages_images as _, page_index}
-				<Page {width} {height} {max_image_side} bind:images={pages_images[page_index]} />
+				<div class="group relative w-full">
+					<Page {width} {height} {max_image_side} bind:images={pages_images[page_index]} />
+					<button
+						class="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-black/40 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 hover:bg-black/70"
+						onclick={() => {
+							pages_images = pages_images!.filter((_, i) => i !== page_index);
+						}}
+						aria-label="Remove page"
+					>
+						<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+							<line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+						</svg>
+					</button>
+				</div>
 			{/each}
 		</div>
 		<div class="flex justify-center">

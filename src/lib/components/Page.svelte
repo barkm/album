@@ -497,7 +497,13 @@
 		node.scaleX(1);
 		node.scaleY(1);
 		if (selected_id) {
-			drag_pos = { id: selected_id, x: node.x(), y: node.y(), w: constrained_size.w, h: constrained_size.h };
+			drag_pos = {
+				id: selected_id,
+				x: node.x(),
+				y: node.y(),
+				w: constrained_size.w,
+				h: constrained_size.h
+			};
 		}
 	};
 
@@ -689,7 +695,9 @@
 							<path d="M6 2v14a2 2 0 0 0 2 2h14" />
 							<path d="M18 22V8a2 2 0 0 0-2-2H2" />
 						</svg>
-						<span class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-xs text-gray-200 opacity-0 transition-opacity group-hover:opacity-100">
+						<span
+							class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 rounded bg-gray-900 px-2 py-1 text-xs whitespace-nowrap text-gray-200 opacity-0 transition-opacity group-hover:opacity-100"
+						>
 							Crop (C)
 						</span>
 					</button>
