@@ -365,6 +365,7 @@
 
 	let transformer: Transformer | null = $state(null);
 	let selected_id: string | null = $state(null);
+	let drag_pos: { id: string; x: number; y: number } | null = $state(null);
 
 	// ----------------- Undo / Redo ------------------
 
@@ -470,6 +471,7 @@
 	}
 
 	function handleDragEnd(e: KonvaDragTransformEvent, item: DroppedImage) {
+		drag_pos = null;
 		const node = e.target;
 		const index = dropped_images.findIndex((img) => img.id === item.id);
 		if (index !== -1) {
@@ -572,6 +574,7 @@
 								draggable={crop_state === null}
 								dragBoundFunc={makeDragBoundFunc(it)}
 								onmousedown={(e) => handleSelect(e, it)}
+								ondragmove={(e) => { drag_pos = { id: it.id, x: e.target.x(), y: e.target.y() }; }}
 								ondragend={(e) => handleDragEnd(e, it)}
 								ontransformend={handleTransformEnd}
 								ontransform={handleTransform}
@@ -657,9 +660,10 @@
 		{#if selected_id && !crop_state}
 			{@const sel = dropped_images.find((i) => i.id === selected_id)}
 			{#if sel}
+				{@const btn_pos = drag_pos?.id === sel.id ? drag_pos : sel}
 				<div
 					class="absolute flex gap-1"
-					style={`left: ${Math.round((sel.x + sel.w) * konva_scale)}px; top: ${Math.round(sel.y * konva_scale)}px; transform: translate(calc(-100% - 6px), 6px);`}
+					style={`left: ${Math.round((btn_pos.x + sel.w) * konva_scale)}px; top: ${Math.round(btn_pos.y * konva_scale)}px; transform: translate(calc(-100% - 6px), 6px);`}
 				>
 					<button
 						class="rounded bg-black/50 p-1.5 text-white backdrop-blur-sm transition-colors hover:bg-black/70"
