@@ -1,4 +1,5 @@
 <script lang="ts">
+	import HelpModal from '$lib/components/HelpModal.svelte';
 	import Layout from '$lib/components/Layout.svelte';
 	import Print from '$lib/components/Print.svelte';
 	import Settings from '$lib/components/Settings.svelte';
@@ -26,31 +27,36 @@
 </script>
 
 <div class="flex flex-col items-center justify-center bg-gray-600 p-10">
-	<div class="mb-6 flex gap-1 rounded-lg bg-gray-700 p-1">
-		<button
-			class="rounded px-4 py-2 text-sm font-medium transition-colors {view === 'layout'
-				? 'bg-white text-gray-900 shadow'
-				: 'text-gray-300 hover:text-white'}"
-			onclick={() => (view = 'layout')}
-		>
-			Layout
-		</button>
-		<button
-			class="rounded px-4 py-2 text-sm font-medium transition-colors {view === 'print'
-				? 'bg-white text-gray-900 shadow'
-				: 'text-gray-300 hover:text-white'}"
-			onclick={() => (view = 'print')}
-		>
-			Print
-		</button>
-		<button
-			class="rounded px-4 py-2 text-sm font-medium transition-colors {view === 'settings'
-				? 'bg-white text-gray-900 shadow'
-				: 'text-gray-300 hover:text-white'}"
-			onclick={() => (view = 'settings')}
-		>
-			Settings
-		</button>
+	<div class="relative mb-6 flex w-full items-center justify-center">
+		<div class="flex gap-1 rounded-lg bg-gray-700 p-1">
+			<button
+				class="rounded px-4 py-2 text-sm font-medium transition-colors {view === 'layout'
+					? 'bg-white text-gray-900 shadow'
+					: 'text-gray-300 hover:text-white'}"
+				onclick={() => (view = 'layout')}
+			>
+				Layout
+			</button>
+			<button
+				class="rounded px-4 py-2 text-sm font-medium transition-colors {view === 'print'
+					? 'bg-white text-gray-900 shadow'
+					: 'text-gray-300 hover:text-white'}"
+				onclick={() => (view = 'print')}
+			>
+				Print
+			</button>
+			<button
+				class="rounded px-4 py-2 text-sm font-medium transition-colors {view === 'settings'
+					? 'bg-white text-gray-900 shadow'
+					: 'text-gray-300 hover:text-white'}"
+				onclick={() => (view = 'settings')}
+			>
+				Settings
+			</button>
+		</div>
+		<div class="absolute right-0">
+			<HelpModal />
+		</div>
 	</div>
 
 	<!-- Hide components instead of removing to save state -->

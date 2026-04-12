@@ -574,7 +574,9 @@
 								draggable={crop_state === null}
 								dragBoundFunc={makeDragBoundFunc(it)}
 								onmousedown={(e) => handleSelect(e, it)}
-								ondragmove={(e) => { drag_pos = { id: it.id, x: e.target.x(), y: e.target.y() }; }}
+								ondragmove={(e) => {
+									drag_pos = { id: it.id, x: e.target.x(), y: e.target.y() };
+								}}
 								ondragend={(e) => handleDragEnd(e, it)}
 								ontransformend={handleTransformEnd}
 								ontransform={handleTransform}
