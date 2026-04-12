@@ -25,10 +25,10 @@
 
 	let view = $state<'layout' | 'print' | 'settings'>('layout');
 
-	const tabs: { id: 'layout' | 'print' | 'settings'; label: string; tip: string }[] = [
-		{ id: 'layout', label: 'Layout', tip: 'Arrange photos on album pages' },
-		{ id: 'print', label: 'Print', tip: 'Pack and download print-ready pages' },
-		{ id: 'settings', label: 'Settings', tip: 'Configure dimensions and padding' }
+	const tabs: { id: 'layout' | 'print' | 'settings'; label: string }[] = [
+		{ id: 'layout', label: 'Layout' },
+		{ id: 'print', label: 'Print' },
+		{ id: 'settings', label: 'Settings' }
 	];
 </script>
 
@@ -37,18 +37,12 @@
 		<div class="flex gap-1 rounded-lg bg-gray-700 p-1">
 			{#each tabs as tab}
 				<button
-					class="group relative rounded px-4 py-2 text-sm font-medium transition-colors {view ===
-					tab.id
+					class="rounded px-4 py-2 text-sm font-medium transition-colors {view === tab.id
 						? 'bg-white text-gray-900 shadow'
 						: 'text-gray-300 hover:text-white'}"
 					onclick={() => (view = tab.id)}
 				>
 					{tab.label}
-					<span
-						class="pointer-events-none absolute top-full left-1/2 z-10 mt-2 -translate-x-1/2 rounded bg-gray-900 px-2 py-1 text-xs whitespace-nowrap text-gray-200 opacity-0 transition-opacity group-hover:opacity-100"
-					>
-						{tab.tip}
-					</span>
 				</button>
 			{/each}
 		</div>

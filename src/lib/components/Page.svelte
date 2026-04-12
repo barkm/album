@@ -678,8 +678,9 @@
 					style={`left: ${Math.round((btn_pos.x + btn_pos.w) * konva_scale)}px; top: ${Math.round(btn_pos.y * konva_scale)}px; transform: translate(calc(-100% - 6px), 6px);`}
 				>
 					<button
-						class="group relative rounded bg-black/50 p-1.5 text-white backdrop-blur-sm transition-colors hover:bg-black/70"
+						class="rounded bg-black/50 p-1.5 text-white backdrop-blur-sm transition-colors hover:bg-black/70"
 						onclick={enterCropMode}
+						aria-label="Crop (C)"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -695,11 +696,6 @@
 							<path d="M6 2v14a2 2 0 0 0 2 2h14" />
 							<path d="M18 22V8a2 2 0 0 0-2-2H2" />
 						</svg>
-						<span
-							class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 rounded bg-gray-900 px-2 py-1 text-xs whitespace-nowrap text-gray-200 opacity-0 transition-opacity group-hover:opacity-100"
-						>
-							Crop (C)
-						</span>
 					</button>
 				</div>
 			{/if}
