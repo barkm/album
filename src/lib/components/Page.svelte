@@ -365,7 +365,7 @@
 
 	let transformer: Transformer | null = $state(null);
 	let selected_id: string | null = $state(null);
-	let drag_pos: { id: string; x: number; y: number } | null = $state(null);
+	let drag_pos: { id: string; x: number; y: number; w: number; h: number } | null = $state(null);
 
 	// ----------------- Undo / Redo ------------------
 
@@ -439,6 +439,7 @@
 
 	// 4. Type the Transform Event
 	function handleTransformEnd(e: KonvaEventObject<Event>) {
+		drag_pos = null;
 		// Cast target to Konva.Node (or Konva.Image) to access width()/scaleX()
 		const node = e.target;
 
@@ -495,6 +496,9 @@
 		node.height(constrained_size.h);
 		node.scaleX(1);
 		node.scaleY(1);
+		if (selected_id) {
+			drag_pos = { id: selected_id, x: node.x(), y: node.y(), w: constrained_size.w, h: constrained_size.h };
+		}
 	};
 
 	// ----------------- Deletion ------------------
@@ -575,7 +579,7 @@
 								dragBoundFunc={makeDragBoundFunc(it)}
 								onmousedown={(e) => handleSelect(e, it)}
 								ondragmove={(e) => {
-									drag_pos = { id: it.id, x: e.target.x(), y: e.target.y() };
+									drag_pos = { id: it.id, x: e.target.x(), y: e.target.y(), w: it.w, h: it.h };
 								}}
 								ondragend={(e) => handleDragEnd(e, it)}
 								ontransformend={handleTransformEnd}
@@ -665,12 +669,11 @@
 				{@const btn_pos = drag_pos?.id === sel.id ? drag_pos : sel}
 				<div
 					class="absolute flex gap-1"
-					style={`left: ${Math.round((btn_pos.x + sel.w) * konva_scale)}px; top: ${Math.round(btn_pos.y * konva_scale)}px; transform: translate(calc(-100% - 6px), 6px);`}
+					style={`left: ${Math.round((btn_pos.x + btn_pos.w) * konva_scale)}px; top: ${Math.round(btn_pos.y * konva_scale)}px; transform: translate(calc(-100% - 6px), 6px);`}
 				>
 					<button
-						class="rounded bg-black/50 p-1.5 text-white backdrop-blur-sm transition-colors hover:bg-black/70"
+						class="group relative rounded bg-black/50 p-1.5 text-white backdrop-blur-sm transition-colors hover:bg-black/70"
 						onclick={enterCropMode}
-						title="Crop (C)"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -686,6 +689,9 @@
 							<path d="M6 2v14a2 2 0 0 0 2 2h14" />
 							<path d="M18 22V8a2 2 0 0 0-2-2H2" />
 						</svg>
+						<span class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-xs text-gray-200 opacity-0 transition-opacity group-hover:opacity-100">
+							Crop (C)
+						</span>
 					</button>
 				</div>
 			{/if}

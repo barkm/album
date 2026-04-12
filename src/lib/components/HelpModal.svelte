@@ -2,7 +2,11 @@
 	let open = $state(false);
 </script>
 
-<svelte:window onkeydown={(e) => { if (e.key === 'Escape') open = false; }} />
+<svelte:window
+	onkeydown={(e) => {
+		if (e.key === 'Escape') open = false;
+	}}
+/>
 
 <button
 	class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-700 text-sm font-semibold text-gray-300 transition-colors hover:bg-gray-600 hover:text-white"
@@ -34,7 +38,17 @@
 					onclick={() => (open = false)}
 					aria-label="Close"
 				>
-					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="18"
+						height="18"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.5"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
 						<line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
 					</svg>
 				</button>
@@ -49,17 +63,7 @@
 
 			<table class="w-full text-sm">
 				<tbody class="divide-y divide-gray-700">
-					{#each [
-						['C', 'Enter crop mode'],
-						['Enter', 'Confirm crop'],
-						['Escape', 'Cancel crop'],
-						['Backspace / Delete', 'Remove selected image'],
-						['⌘C / Ctrl+C', 'Copy image to clipboard'],
-						['⌘X / Ctrl+X', 'Cut image'],
-						['⌘V / Ctrl+V', 'Paste image at cursor'],
-						['⌘Z / Ctrl+Z', 'Undo'],
-						['⌘⇧Z / Ctrl+Shift+Z', 'Redo'],
-					] as [key, desc]}
+					{#each [['C', 'Enter crop mode'], ['Enter', 'Confirm crop'], ['Escape', 'Cancel crop'], ['Backspace / Delete', 'Remove selected image'], ['⌘C / Ctrl+C', 'Copy image to clipboard'], ['⌘X / Ctrl+X', 'Cut image'], ['⌘V / Ctrl+V', 'Paste image at cursor'], ['⌘Z / Ctrl+Z', 'Undo'], ['⌘⇧Z / Ctrl+Shift+Z', 'Redo']] as [key, desc]}
 						<tr>
 							<td class="py-1.5 pr-4 font-mono text-xs whitespace-nowrap text-gray-400">{key}</td>
 							<td class="py-1.5 text-gray-200">{desc}</td>
